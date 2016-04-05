@@ -65,18 +65,18 @@ TEST(FlatColorPacker, pack_single) {
         ASSERT_EQ(values, test_array);
     }
 
-    //Test packing to vector.
-    /*{
-        auto test_array = std::array<uint8_t, 4>{33, 22, 11, 44};
+}
 
-        auto color = Rgba<uint8_t>(11, 22, 33, 44);
-        auto packer = FlatColorPacker<decltype(color)>({2, 1, 0, 3});
-        auto vec = packer.pack_single_to_vector(color);
-
-        for(int i = 0; i < vec.size(); ++i) {
-            ASSERT_EQ(test_array[i], vec[i]);
-        }
-    }*/
+TEST(FlatColorPacker, invalid_pack_format) {
+    //Test invalid packing format
+    {
+        ASSERT_THROW({
+            auto packer = FlatColorPacker<Rgb<float>>({0, 2, 1, 3});
+        }, InvalidPackingFormatError);
+        ASSERT_THROW({
+            auto packer = FlatColorPacker<Rgb<float>>({0, 2, 1, -2});
+        }, InvalidPackingFormatError);
+    }
 }
 
 TEST(FlatColorPacker, pack) {

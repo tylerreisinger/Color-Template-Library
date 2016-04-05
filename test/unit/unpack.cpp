@@ -39,6 +39,18 @@ TEST(Unpack, unpack_single) {
 
 }
 
+TEST(Unpack, invalid_pack_format) {
+    //Test invalid packing format
+    {
+        ASSERT_THROW({
+            auto packer = FlatColorUnpacker<Rgb<float>>({0, 2, 1, 3});
+        }, InvalidPackingFormatError);
+        ASSERT_THROW({
+            auto packer = FlatColorUnpacker<Rgb<float>>({0, 2, 1, -2});
+        }, InvalidPackingFormatError);
+    }
+}
+
 TEST(Unpack, unpack) {
     auto in_data = std::array<float, 12>{0.05, 0.1, 0.2, 0.27, 0.32, 0.35,
         0.45, 0.50, 0.57, 0.67, 0.80, 0.92};

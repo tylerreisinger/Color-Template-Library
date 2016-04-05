@@ -4,6 +4,9 @@
 #include "Unpacker.h"
 
 #include <vector>
+#include <string>
+
+#include "Exceptions.h"
 
 namespace color {
 
@@ -51,10 +54,22 @@ public:
         return in_elems;
     }
 
-    /// Set the packing format
-    FlatColorUnpacker& set_packing_format(std::vector<int> values) {
-        // TODO: handle the case of out-of-range indices.
-        m_pack_format = std::move(values);
+    /** Set the packing format.
+     *  \throw InvalidPackingFormatError An out-of-range index
+     *  was supplied in \a value.
+     */
+    FlatColorUnpacker& set_packing_format(std::vector<int> value) {
+        for(int i = 0; i < value.size(); ++i) {
+            auto elem = value[i];
+            if(elem >= Color::num_channels || elem < -1) {
+                std::string error_mesg = 
+                    "Out of range value in packing format: ";
+                error_mesg += std::to_string(elem) + " at index ";
+                error_mesg += std::to_string(i);
+                throw InvalidPackingFormatError(std::move(error_mesg));
+            }
+        }
+        m_pack_format = std::move(value);
         return *this;
     }
 
