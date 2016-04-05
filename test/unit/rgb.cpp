@@ -27,7 +27,7 @@ TEST(Rgb, explicit_constructor) {
     ASSERT_EQ(c1.red(), uint8_t(30));
     ASSERT_EQ(c1.green(), uint8_t(20));
     ASSERT_EQ(c1.blue(), uint8_t(200));
- 
+
     color::Rgb<float> c2(0.2, 0.5, 0.75);
     ASSERT_EQ(c2.red(), 0.2f);
     ASSERT_EQ(c2.green(), 0.5f);
@@ -73,7 +73,7 @@ TEST(Rgb, as_array) {
 
 TEST(Rgb, as_tuple) {
     color::Rgb<uint16_t> c1(50, 80, 160);
- 
+
     auto vals = c1.as_tuple();
     ASSERT_EQ(std::get<0>(vals), 50);
     ASSERT_EQ(std::get<1>(vals), 80);
@@ -118,7 +118,7 @@ TEST(Rgb, normalize) {
 TEST(Rgb, lerp) {
     color::Rgb<float> c1(0.2, 1.0, 0.0);
     color::Rgb<float> c2(0.8, 0.0, 1.0);
- 
+
     auto interp = c1.lerp(c2, 0.5);
     ASSERT_FLOAT_EQ(interp.red(), 0.5);
     ASSERT_FLOAT_EQ(interp.green(), 0.5);
@@ -140,8 +140,8 @@ TEST(Rgb, scale) {
 TEST(Rgb, arithmetic) {
     color::Rgb<uint8_t> c1(25, 25, 50);
     color::Rgb<uint8_t> c2(125, 100, 150);
-    ASSERT_EQ(c1+c2, color::Rgb<uint8_t>(150, 125, 200));
-    ASSERT_EQ(c2-c1, color::Rgb<uint8_t>(100, 75, 100));
+    ASSERT_EQ(c1 + c2, color::Rgb<uint8_t>(150, 125, 200));
+    ASSERT_EQ(c2 - c1, color::Rgb<uint8_t>(100, 75, 100));
 }
 
 TEST(Rgb, get) {

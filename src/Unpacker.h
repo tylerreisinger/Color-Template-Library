@@ -45,7 +45,7 @@ public:
                 "src must have a length that is a multiple of packed_size()");
         auto last = reinterpret_cast<void*>(
                 reinterpret_cast<uintptr_t>(src) + num_bytes);
-        while (src != last) {
+        while(src != last) {
             auto color = Color();
             src = unpack_single(src, color);
             *out = color;

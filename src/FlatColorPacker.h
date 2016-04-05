@@ -113,8 +113,8 @@ public:
         auto data = in.data();
         auto out_elems = reinterpret_cast<ElementType*>(out);
 
-        for (auto elem : m_pack_format) {
-            if (elem != packer_index_skip) {
+        for(auto elem : m_pack_format) {
+            if(elem != packer_index_skip) {
                 *out_elems = data[elem];
             } else {
                 *out_elems = ElementType(0);
@@ -129,12 +129,11 @@ public:
      *  was supplied in \a value.
      */
     FlatColorPacker& set_packing_format(std::vector<int> value) {
-        int idx = 0;
         for(int i = 0; i < value.size(); ++i) {
             auto elem = value[i];
             if(elem >= Color::num_channels || elem < -1) {
-                std::string error_mesg = 
-                    "Out of range value in packing format: ";
+                std::string error_mesg =
+                        "Out of range value in packing format: ";
                 error_mesg += std::to_string(elem) + " at index ";
                 error_mesg += std::to_string(i);
                 throw InvalidPackingFormatError(std::move(error_mesg));

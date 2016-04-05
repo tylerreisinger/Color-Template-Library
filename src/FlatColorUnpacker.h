@@ -45,8 +45,8 @@ public:
     virtual const void* unpack_single(
             const void* in, Color& out) const override {
         auto in_elems = reinterpret_cast<const ElementType*>(in);
-        for (auto elem : m_pack_format) {
-            if (elem != -1) {
+        for(auto elem : m_pack_format) {
+            if(elem != -1) {
                 out.data()[elem] = *in_elems;
             }
             ++in_elems;
@@ -62,8 +62,8 @@ public:
         for(int i = 0; i < value.size(); ++i) {
             auto elem = value[i];
             if(elem >= Color::num_channels || elem < -1) {
-                std::string error_mesg = 
-                    "Out of range value in packing format: ";
+                std::string error_mesg =
+                        "Out of range value in packing format: ";
                 error_mesg += std::to_string(elem) + " at index ";
                 error_mesg += std::to_string(i);
                 throw InvalidPackingFormatError(std::move(error_mesg));

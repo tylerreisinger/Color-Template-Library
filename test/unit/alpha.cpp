@@ -15,18 +15,19 @@ TEST(Alpha, default_constructor) {
 }
 
 TEST(Alpha, explicit_constructor) {
-    //Color + alpha constructor
+    // Color + alpha constructor
     auto c1 = color::Rgba<uint8_t>({75, 150, 225}, 200);
     ASSERT_EQ(c1.color(), color::Rgb<uint8_t>(75, 150, 225));
     ASSERT_EQ(c1.alpha(), 200);
 
-    //Tuple constructor
-    auto c2 = color::Alpha<uint8_t, color::Rgb>(std::make_tuple(25, 100, 200, 254));
+    // Tuple constructor
+    auto c2 = color::Alpha<uint8_t, color::Rgb>(
+            std::make_tuple(25, 100, 200, 254));
 
-    ASSERT_EQ(c2.color(), color::Rgb<uint8_t>(25,100,200));
+    ASSERT_EQ(c2.color(), color::Rgb<uint8_t>(25, 100, 200));
     ASSERT_EQ(c2.alpha(), 254);
 
-    //Channel constructor
+    // Channel constructor
     auto c3 = color::Rgba<float>(0.2, 0.4, 0.6, 0.86);
     ASSERT_EQ(c3.color(), color::Rgb<float>(0.2, 0.4, 0.6));
     ASSERT_FLOAT_EQ(c3.alpha(), 0.86);
@@ -111,7 +112,7 @@ TEST(Alpha, alpha_blend) {
         ASSERT_FLOAT_EQ(c3.color().blue(), 0.5);
         ASSERT_FLOAT_EQ(c3.alpha(), 1.0);
     }
-    
+
     {
         auto c1 = color::Rgba<float>(0.3, 0.6, 0.5, 0.0);
         auto c2 = color::Rgba<float>(0.7, 0.23, 0.55, 0.0);
@@ -145,7 +146,8 @@ TEST(Alpha, alpha_blend) {
         auto c1 = color::Rgba<uint8_t>(100, 200, 0, 127);
         auto c2 = color::Rgba<uint8_t>(200, 100, 255, 255);
 
-        ASSERT_EQ(alpha_blend(c1, c2), color::Rgba<uint8_t>(150, 149, 127, 255));
+        ASSERT_EQ(
+                alpha_blend(c1, c2), color::Rgba<uint8_t>(150, 149, 127, 255));
     }
 }
 

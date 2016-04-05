@@ -36,7 +36,7 @@ public:
      */
     template <typename Iterator>
     void* pack(Iterator first, Iterator last, void* out) const {
-        for (auto it = first; it != last; ++it) {
+        for(auto it = first; it != last; ++it) {
             out = pack_single(*it, out);
         }
         return out;

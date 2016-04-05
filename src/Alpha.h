@@ -233,7 +233,7 @@ Alpha<T, Color> alpha_blend(
     auto inv_src_alpha = (T(1.0) - src.alpha());
     out.set_alpha(src.alpha() + dest.alpha() * inv_src_alpha);
 
-    if (out.alpha() <= FLOAT_EPSILON<T>) {
+    if(out.alpha() <= FLOAT_EPSILON<T>) {
         out.color() = Color<T>::broadcast(T(0.0));
     } else {
         auto premul_dest = dest.color().scale(dest.alpha());
@@ -261,7 +261,7 @@ Alpha<T, Color> alpha_blend(
 
     auto out_alpha_float = scaled_src_alpha + scaled_dest_alpha * inv_src_alpha;
 
-    if (out_alpha_float <= FLOAT_EPSILON<Pos>) {
+    if(out_alpha_float <= FLOAT_EPSILON<Pos>) {
         out.color() = Color<T>::broadcast(T(0.0));
     } else {
         auto premul_dest = dest.color().scale(scaled_dest_alpha);

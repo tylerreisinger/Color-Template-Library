@@ -44,9 +44,9 @@ public:
     ChannelBase<T>& operator=(T value) { this->value = value; }
 
     T clamp(T min, T max) const {
-        if (value < min) {
+        if(value < min) {
             return min;
-        } else if (value > max) {
+        } else if(value > max) {
             return max;
         } else {
             return value;
@@ -79,17 +79,17 @@ T lerp_cyclic(T start, T end, Pos pos) {
     auto forward_len = std::abs(end - start);
     auto center = start.center_value();
 
-    if (forward_len > center) {
+    if(forward_len > center) {
         auto max_val = start.max_value();
         auto inv_pos = (max_val - pos);
         T out;
 
-        if (start > end) {
+        if(start > end) {
             out = start * inv_pos + (end + max_val) * pos;
         } else {
             out = (start + max_val) * inv_pos + end * pos;
         }
-        if (out > max_val) {
+        if(out > max_val) {
             out -= max_val;
         }
 
