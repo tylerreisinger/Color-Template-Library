@@ -2,6 +2,8 @@
 #define COLOR_UNPACKER_H_
 
 #include <cassert>
+#include <cstdint>
+#include <vector>
 
 namespace color {
 
@@ -44,7 +46,9 @@ public:
         auto last = reinterpret_cast<void*>(
                 reinterpret_cast<uintptr_t>(src) + num_bytes);
         while (src != last) {
-            src = unpack_single(src, *out);
+            auto color = Color();
+            src = unpack_single(src, color);
+            *out = color;
             ++out;
         }
         return src;

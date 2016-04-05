@@ -4,6 +4,7 @@ set(UNIT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/convert.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/packer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/rgb.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/StreamPacker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unpack.cpp
     )
