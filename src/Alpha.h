@@ -9,6 +9,7 @@
 
 #include "Channel.h"
 #include "Tuple_Util.h"
+#include "Color.h"
 
 namespace color {
 

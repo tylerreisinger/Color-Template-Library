@@ -18,9 +18,6 @@
 
 namespace color {
 
-template <typename T>
-static constexpr T FLOAT_EPSILON = 1e-5;
-
 /** Base class for all channel types.
  *  Defines a few common operations but is not designed
  *  to be used directly. Rather, all other channel types
