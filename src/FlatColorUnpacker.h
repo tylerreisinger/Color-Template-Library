@@ -1,3 +1,6 @@
+/** \file
+ *  Defines the FlatColorUnpacker class.
+ */
 #ifndef COLOR_FLATCOLORUNPACKER_H_
 #define COLOR_FLATCOLORUNPACKER_H_
 

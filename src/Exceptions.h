@@ -1,3 +1,6 @@
+/** \file
+ *  Defines the exception classes used by the library.
+ */
 #ifndef EXCEPTIONS_H_
 #define EXCEPTIONS_H_
 

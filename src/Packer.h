@@ -1,3 +1,6 @@
+/** \file 
+ *  Defines the Packer class.
+ */
 #ifndef COLOR_PACKER_H_
 #define COLOR_PACKER_H_
 

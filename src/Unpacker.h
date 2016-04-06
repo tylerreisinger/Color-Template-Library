@@ -1,3 +1,6 @@
+/** \file 
+ *  Defines the Unpacker class.
+ */
 #ifndef COLOR_UNPACKER_H_
 #define COLOR_UNPACKER_H_
 

@@ -1,3 +1,9 @@
+/** \file
+ *  Defines a series of constructors for the named CSS colors.
+ *
+ *  All constructors return an color::Rgb<uint8_t>. Use color::color_cast to
+ *  get other formats.
+ */
 #ifndef COLOR_NAMEDCOLORS_H_
 #define COLOR_NAMEDCOLORS_H_
 

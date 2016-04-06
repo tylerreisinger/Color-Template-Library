@@ -1,3 +1,6 @@
+/** \file
+ *  Defines the StreamUnpacker class.
+ */
 #ifndef COLOR_STREAMUNPACKER_H_
 #define COLOR_STREAMUNPACKER_H_
 
