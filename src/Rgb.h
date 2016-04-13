@@ -1,6 +1,6 @@
 /**\file
  * \brief Defines an Rgb class and other utilities for dealing with the RGB
- * color space.
+ * color model.
  */
 
 #ifndef COLOR_RGB_H_
@@ -13,8 +13,12 @@
 
 namespace color {
 
+///\cond forward_decl
+template <typename T, template <typename> class Color>
+class Alpha;
 template <typename T>
 class Rgb;
+///\endcond
 
 /** Print a color to a data stream.
  *  The output is of the format `RGB(red, green, blue)`.
@@ -26,20 +30,18 @@ constexpr Rgb<T> operator+(const Rgb<T>& lhs, const Rgb<T>& rhs);
 template <typename T>
 constexpr Rgb<T> operator-(const Rgb<T>& lhs, const Rgb<T>& rhs);
 
-///\cond forward_decl
-template <typename T, template <typename> class Color>
-class Alpha;
-///\endcond
 
-/** Convenience type for Rgb colors with an alpha channel.
- */
+/// Convenience type for Rgb colors with an alpha channel.
 template <typename T>
 using Rgba = Alpha<T, Rgb>;
 
 /** A color represented by red, green and blue components.
- * The components are stored the order red, green, blue and
- * are packed such that an array of component values and an
- * array of Rgb instances are equivalent.
+ *
+ *  ## Component Format:
+ *
+ *  * data()[0]: Red
+ *  * data()[1]: Green
+ *  * data()[2]: Blue
  */
 template <typename T>
 class Rgb {
@@ -67,14 +69,16 @@ public:
         : _red(red), _green(green), _blue(blue) {}
 
     /** Construct an Rgb instance from an array of values.
-     * \a values must contain at least three values, each
-     * of which will be copied to the corresponding channel of the
-     * new color.
+     *  \a values must contain at least three values, and
+     *  the first three values will be copied into the
+     *  corresponding components of the Rgb instance
+     *  in the data() component order.
      */
     explicit constexpr Rgb(const T* values)
         : _red(values[0]), _green(values[1]), _blue(values[2]) {}
 
     /** Construct an Rgb instance from an array of values.
+     *  Functionally equivalent to Rgb(const T*).
      */
     explicit constexpr Rgb(const std::array<T, num_channels>& values)
         : Rgb(values.data()) {}
@@ -85,6 +89,11 @@ public:
           _blue(std::get<2>(values)) {}
 
     ~Rgb() = default;
+
+    constexpr Rgb(const Rgb& rhs) = default;
+    constexpr Rgb(Rgb&& rhs) noexcept = default;
+    constexpr Rgb& operator=(const Rgb& rhs) = default;
+    constexpr Rgb& operator=(Rgb&& rhs) noexcept = default;
 
     /** Strict equality of two Rgb instances.
      *  For floating point channels, this has all the caveats
@@ -108,6 +117,7 @@ public:
      */
     constexpr T* data() { return reinterpret_cast<T*>(this); }
 
+    /// Return a pointer to the internal array of components.
     constexpr const T* data() const { return reinterpret_cast<const T*>(this); }
 
     /** Return a copy of the color with each channel clamped to the range
@@ -140,6 +150,11 @@ public:
         return Rgb<T>(_red.lerp(end._red.value, pos),
                 _green.lerp(end._green.value, pos),
                 _blue.lerp(end._blue.value, pos));
+    }
+
+    template <typename Pos>
+    constexpr Rgb<T> lerp_flat(const Rgb<T>& end, Pos pos) const {
+        return lerp(end, pos);
     }
 
     /** Return the inverse of the color.

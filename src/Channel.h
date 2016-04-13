@@ -15,8 +15,15 @@
 #include <cmath>
 
 #include "Tuple_Util.h"
+#include "Angle.h"
 
 namespace color {
+
+template <typename T>
+class BoundedChannel;
+
+template <typename T>
+class PeriodicChannel;
 
 /** Base class for all channel types.
  *  Defines a few common operations but is not designed
@@ -55,6 +62,8 @@ public:
 protected:
 };
 
+namespace details {
+
 template <typename T,
         typename Pos,
         typename = typename std::enable_if_t<std::is_floating_point<Pos>::value>>
@@ -64,21 +73,64 @@ inline T lerp_flat(T start, T end, Pos pos) {
     return T(inv_pos * start + pos * end);
 }
 
-template <typename T,
+template <template <typename> class ChannelType,
+        typename T,
         typename Pos,
         typename = typename std::enable_if_t<std::is_floating_point<Pos>::value>>
-T lerp_cyclic_int(T start, T end, Pos pos) {}
+T lerp_cyclic_int(T start, T end, Pos pos) {
+    auto forward_len = std::abs(end - start);
+    auto center = ChannelType<T>::center_value();
+
+    if(forward_len > center) {
+        auto max_val = ChannelType<T>::max_value();
+        auto inv_pos = Pos(1.0) - pos;
+
+        //   Wrapping Right   len
+        //   --|              |--->
+        //   [-X--------------X---]
+        // left|     center   |right
+
+        if(start > end) {
+            auto right = max_val - start;
+            auto left = end;
+            auto len = right + left;
+
+            auto out = start + len * pos;
+            if(out >= max_val) {
+                out -= max_val;
+            }
+            return out;
+            //   Wrapping Left    len
+            //   <-|              |---|
+            //   [-X--------------X---]
+            // left|     center   |right
+        } else {
+            auto right = max_val - end;
+            auto left = start;
+            auto len = right + left;
+            auto out = start - len * pos;
+            if(out < 0) {
+                out += max_val;
+            }
+            return out;
+        }
+
+    } else {
+        return lerp_flat(start, end, pos);
+    }
+}
 
 template <typename T,
         typename Pos,
         typename = typename std::enable_if_t<std::is_floating_point<Pos>::value>>
 T lerp_cyclic(T start, T end, Pos pos) {
+    using ChannelType = PeriodicChannel<T>;
     auto forward_len = std::abs(end - start);
-    auto center = start.center_value();
+    auto center = ChannelType::center_value();
 
     if(forward_len > center) {
-        auto max_val = start.max_value();
-        auto inv_pos = (max_val - pos);
+        auto max_val = ChannelType::max_value();
+        auto inv_pos = (Pos(1.0) - pos);
         T out;
 
         if(start > end) {
@@ -86,7 +138,7 @@ T lerp_cyclic(T start, T end, Pos pos) {
         } else {
             out = (start + max_val) * inv_pos + end * pos;
         }
-        if(out > max_val) {
+        if(out >= max_val) {
             out -= max_val;
         }
 
@@ -95,7 +147,7 @@ T lerp_cyclic(T start, T end, Pos pos) {
         return lerp_flat(start, end, pos);
     }
 }
-
+}
 
 template <typename T>
 inline std::ostream& operator<<(std::ostream& stream, ChannelBase<T> rhs) {
@@ -204,7 +256,12 @@ public:
 
     template <typename Pos>
     constexpr T lerp(T end, Pos pos) const {
-        return lerp_flat(this->value, end, pos);
+        return details::lerp_flat(this->value, end, pos);
+    }
+
+    template <typename Pos>
+    constexpr T lerp_flat(T end, Pos pos) const {
+        return lerp(end, pos);
     }
 
     using ChannelBase<T>::value;
@@ -219,7 +276,7 @@ class BoundedChannelImpl<T, std::enable_if_t<std::is_integral<T>::value>>
 public:
     static constexpr T max_value() { return std::numeric_limits<T>::max(); }
 
-    static constexpr T center_value() { return max_value() / T(2); }
+    static constexpr T center_value() { return max_value() >> 1; }
 
     static constexpr T min_value() { return T(0); }
 
@@ -229,8 +286,114 @@ public:
 
     template <typename Pos>
     constexpr T lerp(T end, Pos pos) const {
-        return lerp_flat(this->value, end, pos);
+        return details::lerp_flat(this->value, end, pos);
     }
+
+    template <typename Pos>
+    constexpr T lerp_flat(T end, Pos pos) const {
+        return lerp(end, pos);
+    }
+
+    using ChannelBase<T>::value;
+
+protected:
+    using ChannelBase<T>::ChannelBase;
+};
+
+template <typename T, typename enable = void>
+class PeriodicChannelImpl;
+
+template <typename T>
+class PeriodicChannelImpl<T, std::enable_if_t<std::is_floating_point<T>::value>>
+        : public ChannelBase<T> {
+public:
+    static constexpr T max_value() { return T(1.0); }
+    static constexpr T center_value() { return 0.5; }
+    static constexpr T min_value() { return T(0.0); }
+    constexpr T inverse() const { return max_value() - value; }
+    constexpr T normalize() const {
+        if(value == 0.0) {
+            return value;
+        } else {
+            auto val = std::fmod(value, max_value());
+            if(val < min_value()) {
+                val = max_value() + val;
+            }
+            return val;
+        }
+    }
+
+    template <typename Pos>
+    constexpr T lerp(T end, Pos pos) const {
+        return details::lerp_cyclic(this->value, end, pos);
+    }
+
+    template <typename Pos>
+    constexpr T lerp_flat(T end, Pos pos) const {
+        return details::lerp_flat(this->value, end, pos);
+    }
+
+    template <template <typename> class Angle,
+            typename U,
+            typename std::enable_if_t<std::is_floating_point<U>::value, int> = 0>
+    constexpr void set_angle(Angle<U> angle) {
+        value = angle.to_normalized_coordinate();
+    }
+
+    template <template <typename> class Angle, typename U>
+    constexpr Angle<U> get_angle() const {
+        return Angle<U>::from_normalized_coordinate(value);
+    }
+
+    constexpr T wrap_endpoint() const {
+        if(value >= max_value()) {
+            return value - max_value();
+        }
+        return value;
+    }
+
+    using ChannelBase<T>::value;
+
+protected:
+    using ChannelBase<T>::ChannelBase;
+};
+
+template <typename T>
+class PeriodicChannelImpl<T, std::enable_if_t<std::is_integral<T>::value>>
+        : public ChannelBase<T> {
+public:
+    static constexpr T max_value() { return std::numeric_limits<T>::max(); }
+    static constexpr T center_value() { return max_value() >> 1; }
+    static constexpr T min_value() { return 0; }
+    constexpr T inverse() const { return ~value; }
+    constexpr T normalize() const { return value; }
+
+    template <typename Pos>
+    constexpr T lerp(T end, Pos pos) const {
+        return details::lerp_cyclic_int<PeriodicChannel>(this->value, end, pos);
+    }
+
+    template <typename Pos>
+    constexpr T lerp_flat(T end, Pos pos) const {
+        return details::lerp_flat(this->value, end, pos);
+    }
+
+    template <template <typename> class Angle,
+            typename U,
+            typename std::enable_if_t<std::is_floating_point<U>::value, int> = 0>
+    constexpr void set_angle(Angle<U> angle) {
+        value = angle.to_normalized_coordinate() * max_value();
+    }
+
+    template <template <typename> class Angle,
+            typename U,
+            typename std::enable_if_t<std::is_floating_point<U>::value, int> = 0>
+    constexpr Angle<U> get_angle() const {
+        auto normalized_coord = U(value) / max_value();
+        return Angle<U>::from_normalized_coordinate(normalized_coord);
+    }
+
+    constexpr T wrap_endpoint() const { return value; }
 
     using ChannelBase<T>::value;
 
@@ -252,7 +415,12 @@ class BoundedChannel : public details::BoundedChannelImpl<T> {
 public:
     using details::BoundedChannelImpl<T>::BoundedChannelImpl;
 };
-}
 
+template <typename T>
+class PeriodicChannel : public details::PeriodicChannelImpl<T> {
+public:
+    using details::PeriodicChannelImpl<T>::PeriodicChannelImpl;
+};
+}
 
 #endif

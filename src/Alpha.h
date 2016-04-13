@@ -127,6 +127,13 @@ public:
                 _alpha.lerp(end._alpha.value, pos));
     }
 
+    template <typename Pos>
+    constexpr Alpha<T, Color> lerp_flat(
+            const Alpha<T, Color>& end, Pos pos) const {
+        return Alpha<T, Color>(_color.lerp_flat(end.color(), pos),
+                _alpha.lerp_flat(end._alpha.value, pos));
+    }
+
     /** Return the inverse of the color.
      */
     constexpr Alpha<T, Color> inverse() const {

@@ -15,22 +15,22 @@ template <typename To>
 struct tuple_transform_functor {
     template <typename From, template <typename> class ChanType>
     constexpr To operator()(ChanType<From> chan) {
-        auto scaling_factor =
+        constexpr auto scaling_factor =
                 (ChanType<To>::max_value() - ChanType<To>::min_value()) /
                 (ChanType<From>::max_value() - ChanType<From>::min_value());
-        auto shift = ChanType<To>::min_value() - ChanType<From>::min_value();
+        constexpr auto shift =
+                ChanType<To>::min_value() - ChanType<From>::min_value();
 
         return scaling_factor * chan.value + shift;
     }
 };
 
-template <typename To, typename Color, std::size_t... indices>
+template <typename To, typename ToColor, typename Color, std::size_t... indices>
 inline constexpr auto color_cast_impl(
         const Color& color, std::index_sequence<indices...>) {
-    auto channels = color.channel_tuple();
     auto transform_fn = tuple_transform_functor<To>();
 
-    return std::make_tuple((transform_fn(std::get<indices>(channels)))...);
+    return ToColor((transform_fn(std::get<indices>(color.channel_tuple())))...);
 }
 }
 
@@ -47,9 +47,7 @@ inline constexpr Color<To> color_cast(const Color<From>& color) {
     using indices = std::make_integer_sequence<std::size_t,
             FromColorType::num_channels>;
 
-    auto new_channels = details::color_cast_impl<To>(color, indices());
-
-    return ToColorType(new_channels);
+    return details::color_cast_impl<To, ToColorType>(color, indices());
 }
 
 /** Convert the components of `color` from one data type to another.
@@ -70,7 +68,8 @@ inline constexpr OuterColor<To, InnerColor> color_cast(
     using indices = std::make_integer_sequence<std::size_t,
             FromColorType::num_channels>;
 
-    auto new_channels = details::color_cast_impl<To>(color, indices());
+    auto new_channels =
+            details::color_cast_impl<To, ToColorType>(color, indices());
 
     return ToColorType(new_channels);
 }

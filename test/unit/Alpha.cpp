@@ -150,4 +150,3 @@ TEST(Alpha, alpha_blend) {
                 alpha_blend(c1, c2), color::Rgba<uint8_t>(150, 149, 127, 255));
     }
 }
-
