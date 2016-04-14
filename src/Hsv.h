@@ -264,6 +264,11 @@ Hsv<T> operator-(const Hsv<T>& lhs, const Hsv<T>& rhs) {
             lhs.saturation() - rhs.saturation(),
             lhs.value() - rhs.value());
 }
+
+template <typename T>
+inline T chroma(const Hsv<T>& color) {
+    return color.saturation() * color.value();
+}
 }
 
 #endif

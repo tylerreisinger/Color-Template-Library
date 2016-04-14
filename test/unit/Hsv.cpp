@@ -1,11 +1,13 @@
 #include "gtest/gtest.h"
 
+#include <array>
+#include <iostream>
+
 #include "Hsv.h"
 #include "Color.h"
 #include "Alpha.h"
 
-#include <array>
-#include <iostream>
+#include "ConversionRef.h"
 
 using namespace color;
 
@@ -267,5 +269,17 @@ TEST(Hsv, hue_angle) {
         ASSERT_EQ(c1.hue(), 63);
         ASSERT_LE(std::abs(90.0 - deg_angle), 2.0);
         ASSERT_LE(std::abs(PI<float> / 2.0 - deg_rad), PI<float> / 90.);
+    }
+}
+
+TEST(Hsv, chroma) {
+    {
+        for(int i = 0; i < ref_vals::CHROMA_TEST[i]; ++i) {
+            auto ch = chroma(ref_vals::HSV_TEST[i]);
+
+            static float ERROR_TOL = 1e-4;
+
+            ASSERT_LE(std::abs(ch - ref_vals::CHROMA_TEST[i]), ERROR_TOL);
+        }
     }
 }

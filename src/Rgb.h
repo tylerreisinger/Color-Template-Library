@@ -8,6 +8,7 @@
 
 #include <ostream>
 #include <tuple>
+#include <algorithm>
 
 #include "Channel.h"
 
@@ -270,6 +271,14 @@ inline std::ostream& operator<<(std::ostream& stream, const Rgb<T>& rgb) {
            << ")";
 
     return stream;
+}
+
+template <typename T>
+inline T chroma(const Rgb<T>& color) {
+    T min, max;
+    std::tie(min, max) =
+            std::minmax({color.red(), color.green(), color.blue()});
+    return max - min;
 }
 }
 
