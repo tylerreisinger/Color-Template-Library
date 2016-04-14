@@ -255,7 +255,7 @@ Alpha<T, Color> alpha_blend(
 template <typename T,
         template <typename> class Color,
         typename Pos = float,
-        typename std::enable_if_t<!std::is_floating_point<T>::value, int> = 0>
+        typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
 Alpha<T, Color> alpha_blend(
         const Alpha<T, Color>& src, const Alpha<T, Color>& dest) {
     Pos scaled_src_alpha =
