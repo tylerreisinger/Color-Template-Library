@@ -16,8 +16,8 @@ struct tuple_transform_functor {
     template <typename From, template <typename> class ChanType>
     constexpr To operator()(ChanType<From> chan) {
         constexpr auto scaling_factor =
-                (ChanType<To>::max_value() - ChanType<To>::min_value()) /
-                (ChanType<From>::max_value() - ChanType<From>::min_value());
+                (ChanType<To>::end_point() - ChanType<To>::min_value()) /
+                (ChanType<From>::end_point() - ChanType<From>::min_value());
         constexpr auto shift =
                 ChanType<To>::min_value() - ChanType<From>::min_value();
 

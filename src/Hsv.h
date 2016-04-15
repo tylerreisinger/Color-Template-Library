@@ -61,8 +61,7 @@ public:
     constexpr Hsv() : _hue(T(0)), _saturation(T(0)), _value(T(0)) {}
     /// Construct an Hsv instance with specific component values.
     constexpr Hsv(T hue, T saturation, T value)
-        : _hue(PeriodicChannel<T>(hue).wrap_endpoint()),
-          _saturation(saturation), _value(value) {}
+        : _hue(hue), _saturation(saturation), _value(value) {}
     template <template <typename> class Angle, typename U>
     constexpr Hsv(Angle<U> hue, T saturation, T value)
         : Hsv(hue.to_normalized_coordinate(), saturation, value) {}

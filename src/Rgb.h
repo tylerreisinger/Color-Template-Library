@@ -47,6 +47,8 @@ using Rgba = Alpha<T, Rgb>;
 template <typename T>
 class Rgb {
 public:
+    enum class Indices { Red = 0, Green = 1, Blue = 2 };
+
     static constexpr int num_channels = 3;
 
     using ElementType = T;
@@ -196,16 +198,18 @@ public:
     }
 
     constexpr T red() const { return _red.value; }
-
     constexpr T green() const { return _green.value; }
-
     constexpr T blue() const { return _blue.value; }
-
     constexpr T& red() { return _red.value; }
-
     constexpr T& green() { return _green.value; }
-
     constexpr T& blue() { return _blue.value; }
+
+    constexpr BoundedChannel<T> red_channel() const { return _red; }
+    constexpr BoundedChannel<T> green_channel() const { return _green; }
+    constexpr BoundedChannel<T> blue_channel() const { return _blue; }
+    constexpr BoundedChannel<T>& red_channel() { return _red; }
+    constexpr BoundedChannel<T>& green_channel() { return _green; }
+    constexpr BoundedChannel<T>& blue_channel() { return _blue; }
 
     /** Return a tuple of channel values.
      *  This can be useful for generalizing algorithms

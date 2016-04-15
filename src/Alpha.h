@@ -160,9 +160,10 @@ public:
 
     /// Return a mutable reference to the alpha component.
     constexpr T& alpha() { return _alpha.value; }
-
-    /// Return
     constexpr T alpha() const { return _alpha.value; }
+
+    constexpr BoundedChannel<T> alpha_channel() const { return _alpha; }
+    constexpr BoundedChannel<T>& alpha_channel() { return _alpha; }
 
     /// Get a mutable reference to the inner color object.
     constexpr Color<T>& color() { return _color; }
@@ -258,10 +259,9 @@ template <typename T,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
 Alpha<T, Color> alpha_blend(
         const Alpha<T, Color>& src, const Alpha<T, Color>& dest) {
-    Pos scaled_src_alpha =
-            static_cast<Pos>(src.alpha()) / BoundedChannel<T>::max_value();
+    Pos scaled_src_alpha = src.alpha_channel().template to_float_channel<Pos>();
     Pos scaled_dest_alpha =
-            static_cast<Pos>(dest.alpha()) / BoundedChannel<T>::max_value();
+            dest.alpha_channel().template to_float_channel<Pos>();
 
     Pos inv_src_alpha = Pos(1.0) - scaled_src_alpha;
 
@@ -275,7 +275,8 @@ Alpha<T, Color> alpha_blend(
         auto premul_dest = dest.color().scale(scaled_dest_alpha);
 
         out.color() = src.color().lerp(premul_dest, inv_src_alpha);
-        out.alpha() = out_alpha_float * BoundedChannel<T>::max_value();
+        out.alpha_channel() =
+                BoundedChannel<T>::from_float_channel(out_alpha_float);
     }
 
     return out;

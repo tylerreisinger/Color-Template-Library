@@ -128,17 +128,19 @@ TEST(Hsv, inverse) {
         auto c2 = Hsv<float>(0.5, 0.5, 0.5);
         auto c3 = Hsv<float>(0.0, 0.25, 1.0);
 
-        ASSERT_TRUE(float_eq(c1.inverse(), Hsv<float>(0.2, 0.8, 0.5)));
-        ASSERT_TRUE(float_eq(c2.inverse(), c2));
-        ASSERT_TRUE(float_eq(c3.inverse(), Hsv<float>(1.0, 0.75, 0.0)));
+        ASSERT_TRUE(float_eq(c1.inverse(), Hsv<float>(0.3, 0.8, 0.5)));
+        ASSERT_TRUE(float_eq(c2.inverse(), Hsv<float>(0.0, 0.5, 0.5)));
+        ASSERT_TRUE(float_eq(c3.inverse(), Hsv<float>(0.5, 0.75, 0.0)));
     }
 
     {
         auto c1 = Hsv<uint8_t>(127, 250, 50);
         auto c2 = Hsv<uint8_t>(0, 255, 130);
+        auto c3 = Hsv<uint8_t>(200, 200, 100);
 
-        ASSERT_EQ(c1.inverse(), Hsv<uint8_t>(128, 5, 205));
-        ASSERT_EQ(c2.inverse(), Hsv<uint8_t>(255, 0, 125));
+        ASSERT_EQ(c1.inverse(), Hsv<uint8_t>(255, 5, 205));
+        ASSERT_EQ(c2.inverse(), Hsv<uint8_t>(128, 0, 125));
+        ASSERT_EQ(c3.inverse(), Hsv<uint8_t>(72, 55, 155));
     }
 }
 
@@ -266,7 +268,7 @@ TEST(Hsv, hue_angle) {
         deg_angle = c1.hue_angle<Degrees, float>().value;
         deg_rad = c1.hue_angle<Radians, float>().value;
 
-        ASSERT_EQ(c1.hue(), 63);
+        ASSERT_EQ(c1.hue(), 64);
         ASSERT_LE(std::abs(90.0 - deg_angle), 2.0);
         ASSERT_LE(std::abs(PI<float> / 2.0 - deg_rad), PI<float> / 90.);
     }

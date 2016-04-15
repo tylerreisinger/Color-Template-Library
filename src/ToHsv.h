@@ -70,7 +70,7 @@ Hsv<T> to_hsv(const Rgb<T>& from) {
     }
 
     // c1 is guaranteed to be the max
-    auto max_channel_val = BoundedChannel<T>::max_value();
+    auto max_channel_val = BoundedChannel<T>::end_point();
     auto one_over_max = FloatType(1.0) / max_channel_val;
 
     auto chroma = FloatType(c1 - min_channel) * one_over_max;
@@ -81,7 +81,9 @@ Hsv<T> to_hsv(const Rgb<T>& from) {
 
     auto value = c1;
     auto saturation = chroma / FloatType(value * one_over_max + EPSILON);
-    return Hsv<T>(hue * max_channel_val, saturation * max_channel_val, value);
+    return Hsv<T>(PeriodicChannel<T>::from_float_channel(hue).value,
+            BoundedChannel<T>::from_float_channel(saturation).value,
+            value); // * max_channel_val, saturation * max_channel_val, value);
 }
 
 template <typename T,

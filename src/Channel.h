@@ -245,6 +245,7 @@ class BoundedChannelImpl<T, std::enable_if_t<std::is_floating_point<T>::value>>
         : public ChannelBase<T> {
 public:
     static constexpr T max_value() { return T(1.0); }
+    static constexpr T end_point() { return max_value(); }
 
     static constexpr T center_value() { return T(0.5); }
 
@@ -264,6 +265,19 @@ public:
         return lerp(end, pos);
     }
 
+    template <typename Out = T,
+            typename = std::enable_if_t<std::is_floating_point<Out>::value>>
+    constexpr Out to_float_channel() const {
+        return Out(value);
+    }
+
+    template <typename FloatType = T,
+            typename =
+                    std::enable_if_t<std::is_floating_point<FloatType>::value>>
+    static constexpr BoundedChannel<T> from_float_channel(FloatType val) {
+        return BoundedChannel<T>(T(val));
+    }
+
     using ChannelBase<T>::value;
 
 protected:
@@ -275,6 +289,7 @@ class BoundedChannelImpl<T, std::enable_if_t<std::is_integral<T>::value>>
         : public ChannelBase<T> {
 public:
     static constexpr T max_value() { return std::numeric_limits<T>::max(); }
+    static constexpr uintmax_t end_point() { return max_value(); }
 
     static constexpr T center_value() { return max_value() >> 1; }
 
@@ -294,6 +309,19 @@ public:
         return lerp(end, pos);
     }
 
+    template <typename Out,
+            typename = std::enable_if_t<std::is_floating_point<Out>::value>>
+    constexpr Out to_float_channel() const {
+        return value / Out(end_point());
+    }
+
+    template <typename FloatType,
+            typename =
+                    std::enable_if_t<std::is_floating_point<FloatType>::value>>
+    static constexpr BoundedChannel<T> from_float_channel(FloatType val) {
+        return BoundedChannel<T>(T(val * FloatType(end_point())));
+    }
+
     using ChannelBase<T>::value;
 
 protected:
@@ -307,15 +335,26 @@ template <typename T>
 class PeriodicChannelImpl<T, std::enable_if_t<std::is_floating_point<T>::value>>
         : public ChannelBase<T> {
 public:
-    static constexpr T max_value() { return T(1.0); }
+    static constexpr T max_value() {
+        return T(1.0 - std::numeric_limits<T>::epsilon());
+    }
     static constexpr T center_value() { return 0.5; }
     static constexpr T min_value() { return T(0.0); }
-    constexpr T inverse() const { return max_value() - value; }
+
+    static constexpr T end_point() { return T(1.0); }
+
+    constexpr T inverse() const {
+        T out = value + 0.5;
+        if(out >= end_point()) {
+            out -= end_point();
+        }
+        return out;
+    }
     constexpr T normalize() const {
         if(value == 0.0) {
             return value;
         } else {
-            auto val = std::fmod(value, max_value());
+            auto val = std::fmod(value, end_point());
             if(val < min_value()) {
                 val = max_value() + val;
             }
@@ -345,11 +384,17 @@ public:
         return Angle<U>::from_normalized_coordinate(value);
     }
 
-    constexpr T wrap_endpoint() const {
-        if(value >= max_value()) {
-            return value - max_value();
-        }
-        return value;
+    template <typename Out = T,
+            typename = std::enable_if_t<std::is_floating_point<Out>::value>>
+    constexpr Out to_float_channel() const {
+        return Out(value);
+    }
+
+    template <typename FloatType = T,
+            typename =
+                    std::enable_if_t<std::is_floating_point<FloatType>::value>>
+    static constexpr BoundedChannel<T> from_float_channel(FloatType val) {
+        return BoundedChannel<T>(T(val));
     }
 
     using ChannelBase<T>::value;
@@ -363,9 +408,20 @@ class PeriodicChannelImpl<T, std::enable_if_t<std::is_integral<T>::value>>
         : public ChannelBase<T> {
 public:
     static constexpr T max_value() { return std::numeric_limits<T>::max(); }
-    static constexpr T center_value() { return max_value() >> 1; }
+    static constexpr T center_value() { return end_point() >> 1; }
     static constexpr T min_value() { return 0; }
-    constexpr T inverse() const { return ~value; }
+    static constexpr uintmax_t end_point() {
+        return uintmax_t(std::numeric_limits<T>::max()) + 1;
+    }
+
+    constexpr T inverse() const {
+        T out = value + center_value();
+        if(out < 0) {
+            out = value - center_value();
+        }
+        return out;
+    }
+
     constexpr T normalize() const { return value; }
 
     template <typename Pos>
@@ -382,18 +438,31 @@ public:
             typename U,
             typename std::enable_if_t<std::is_floating_point<U>::value, int> = 0>
     constexpr void set_angle(Angle<U> angle) {
-        value = angle.to_normalized_coordinate() * max_value();
+        value = angle.to_normalized_coordinate() * end_point();
     }
 
     template <template <typename> class Angle,
             typename U,
             typename std::enable_if_t<std::is_floating_point<U>::value, int> = 0>
     constexpr Angle<U> get_angle() const {
-        auto normalized_coord = U(value) / max_value();
+        auto normalized_coord = U(value) / end_point();
         return Angle<U>::from_normalized_coordinate(normalized_coord);
     }
 
     constexpr T wrap_endpoint() const { return value; }
+
+    template <typename Out,
+            typename std::enable_if_t<std::is_floating_point<Out>::value>>
+    constexpr Out to_normalized_coordinate() const {
+        return value / Out(end_point());
+    }
+
+    template <typename FloatType,
+            typename =
+                    std::enable_if_t<std::is_floating_point<FloatType>::value>>
+    static constexpr BoundedChannel<T> from_float_channel(FloatType val) {
+        return BoundedChannel<T>(T(val * FloatType(end_point())));
+    }
 
     using ChannelBase<T>::value;
 
