@@ -4,8 +4,9 @@
 #include "Rgb.h"
 #include "Color.h"
 #include "ColorCast.h"
+#include "Hsv.h"
 
-#include <iostream>
+using namespace color;
 
 TEST(Convert, color_cast_equivalent) {
     auto c1 = color::Rgb<uint8_t>(127, 127, 127);
@@ -36,4 +37,15 @@ TEST(Convert, color_cast_int_to_int) {
 
     ASSERT_EQ(color::color_cast<uint16_t>(c1),
             color::Rgb<uint16_t>(0x101, 0x8080, 0xFFFF));
+}
+
+
+TEST(Convert, color_cast_hsv) {
+    {
+        auto c1 = Hsv<uint8_t>(255, 255, 255);
+        auto c2 = color_cast<float>(c1);
+
+        ASSERT_LT(c2.hue(), 1.0);
+        ASSERT_GT(c2.hue(), 0.0);
+    }
 }

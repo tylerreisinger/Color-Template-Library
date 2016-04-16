@@ -181,6 +181,13 @@ TEST(Hsv, lerp) {
     }
 
     {
+        auto c1 = Hsv<uint8_t>(200, 100, 100);
+        auto c2 = Hsv<uint8_t>(56, 200, 200);
+
+        ASSERT_EQ(c1.lerp(c2, 0.5), Hsv<uint8_t>(0, 150, 150));
+    }
+
+    {
         auto c1 = Hsv<float>(0.9, 0.5, 0.9);
         auto c2 = Hsv<float>(0.1, 0.2, 0.2);
         auto c3 = Hsv<float>(0.5, 0.4, 0.9);

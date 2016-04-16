@@ -146,10 +146,18 @@ TEST(ToHsv, hsv_to_rgb) {
         }
 
         {
-            // TODO: Good integer valued tests
-            // auto hsv = Hsva<uint8_t>(255, 255, 255, 255);
-            // auto rgb = to_rgb(hsv);
-            // ASSERT_EQ(rgb, Rgba<uint8_t>(255, 0, 0, 255));
+            auto hsv = Hsva<uint8_t>(255, 255, 255, 255);
+            auto rgb = to_rgb(hsv);
+
+            ASSERT_EQ(rgb, Rgba<uint8_t>(255, 0, 5, 255));
+        }
+        {
+            auto hsv = Hsv<uint16_t>(65535, 65535, 65535);
+            auto hsv2 = Hsv<uint16_t>(0, 65535, 65535);
+            auto rgb = color_cast<uint8_t>(hsv);
+            auto rgb2 = color_cast<uint8_t>(hsv2);
+
+            ASSERT_EQ(rgb, rgb2);
         }
 
         {
