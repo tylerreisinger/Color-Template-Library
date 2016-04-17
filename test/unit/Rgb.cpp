@@ -4,6 +4,10 @@
 
 #include "Rgb.h"
 #include "Color.h"
+#include "ConversionRef.h"
+#include "Angle.h"
+
+using namespace color;
 
 TEST(Rgb, default_constructor) {
     color::Rgb<uint8_t> c1;
@@ -149,4 +153,38 @@ TEST(Rgb, get) {
     ASSERT_EQ(color::get<0>(c1), 5);
     ASSERT_EQ(color::get<1>(c1), 10);
     ASSERT_EQ(color::get<2>(c1), 15);
+}
+
+TEST(Rgb, chromacity_coordinates) {
+    {
+        auto c1 = Rgb<float>(1.0, 0.0, 0.0);
+        float alpha, beta;
+        std::tie(alpha, beta) = chromacity_coordinates(c1);
+
+        ASSERT_FLOAT_EQ(alpha, 1.0);
+        ASSERT_FLOAT_EQ(beta, 0.0);
+    }
+    {
+        auto c1 = Rgb<float>(0.75, 0.33, 0.5);
+        float alpha, beta;
+        std::tie(alpha, beta) = chromacity_coordinates(c1);
+
+        ASSERT_FLOAT_EQ(alpha, .335);
+        ASSERT_FLOAT_EQ(beta, -0.1472243186);
+    }
+}
+
+TEST(Rgb, circular_chromacity) {
+    for(int i = 0; i < ref_vals::RGB_TEST.size(); ++i) {
+        float alpha, beta;
+        std::tie(alpha, beta) = chromacity_coordinates(ref_vals::RGB_TEST[i]);
+        auto chroma = circular_chroma(alpha, beta);
+        auto hue = circular_hue(alpha, beta);
+
+        constexpr auto ERROR_TOL = 1e-3f;
+
+        ASSERT_LE(std::abs(ref_vals::CIRCULAR_CHROMA_TEST[i] - chroma),
+                ERROR_TOL);
+        ASSERT_LE(std::abs(ref_vals::CIRCULAR_HUE_TEST[i] - hue), ERROR_TOL);
+    }
 }

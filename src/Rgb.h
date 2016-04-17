@@ -284,6 +284,77 @@ inline T chroma(const Rgb<T>& color) {
             std::minmax({color.red(), color.green(), color.blue()});
     return max - min;
 }
+
+/** Returns a pair of chromacity coordinates.
+ *  The first coordinate \f$\alpha$\f represents
+ *  the "redness" of the color and the second coordinate
+ *  \f$\beta$\f represents the "greenness vs blueness".
+ *  Both coordinates are in the range [-1, 1].
+ *
+ *  This function only accepts floating point colors.
+ */
+template <typename T,
+        typename = std::enable_if_t<std::is_floating_point<T>::value>>
+inline std::tuple<T, T> chromacity_coordinates(const Rgb<T>& color) {
+    auto alpha = color.red() - T(0.5) * (color.green() + color.blue());
+    auto beta = std::sqrt(3.0) * 0.5 * (color.green() - color.blue());
+    return std::make_tuple(alpha, beta);
+}
+
+/** Return an angular chromacity.
+ *  This varies slightly from the standard definition used
+ *  in HSV and HSL colors. It is a fully polar computation
+ *  and does not distort a hexagon to a circle like the
+ *  HSV and HSL computations do. As a downside, it is much
+ *  more expensive to compute.
+ */
+template <typename T,
+        typename = std::enable_if_t<std::is_floating_point<T>::value>>
+inline T circular_chroma(T alpha, T beta) {
+    return std::sqrt(alpha * alpha + beta * beta);
+}
+
+/** Calls circular_chromacity(T, T) with
+ *  the return from chromacity_coordiates(const Rgb<T>&).
+ *
+ *  This function only accepts floating point colors.
+ */
+template <typename T>
+inline T circular_chroma(const Rgb<T>& color) {
+    T alpha, beta;
+    std::tie(alpha, beta) = chromacity_coordinates(color);
+    return circular_chroma(alpha, beta);
+}
+
+/** Returns an angular hue.
+ *  Similar to circular_chromacity, the result varies
+ *  slightly from the standard hue measure. It is a fully
+ *  polar computation and does not involve distorting a
+ *  hexagon into a circle.
+ *
+ *  T must be a floating point type.
+ */
+template <typename T,
+        typename = std::enable_if_t<std::is_floating_point<T>::value>>
+inline T circular_hue(T alpha, T beta) {
+    auto hue = std::atan2(beta, alpha);
+    if(hue < 0) {
+        hue = 2 * PI<float> + hue;
+    }
+    return hue / (2 * PI<float>);
+}
+
+/** Calls circular_hue(T, T) with
+ *  the return from chromacity_coordiates(const Rgb<T>&).
+ *
+ *  This function only accepts floating point colors.
+ */
+template <typename T>
+inline T circular_hue(const Rgb<T>& color) {
+    T alpha, beta;
+    std::tie(alpha, beta) = chromacity_coordinates(color);
+    return circular_hue(alpha, beta);
+}
 }
 
 #endif
