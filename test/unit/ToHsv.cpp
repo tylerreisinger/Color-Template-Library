@@ -153,7 +153,7 @@ TEST(ToHsv, hsv_to_rgb) {
         }
         {
             auto hsv = Hsv<uint16_t>(65535, 65535, 65535);
-            auto hsv2 = Hsv<uint16_t>(0, 65535, 65535);
+            auto hsv2 = Hsv<uint16_t>(65500, 65535, 65535);
             auto rgb = color_cast<uint8_t>(hsv);
             auto rgb2 = color_cast<uint8_t>(hsv2);
 

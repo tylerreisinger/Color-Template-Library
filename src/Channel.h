@@ -289,7 +289,7 @@ class BoundedChannelImpl<T, std::enable_if_t<std::is_integral<T>::value>>
         : public ChannelBase<T> {
 public:
     static constexpr T max_value() { return std::numeric_limits<T>::max(); }
-    static constexpr uintmax_t end_point() { return max_value(); }
+    static constexpr double end_point() { return max_value(); }
 
     static constexpr T center_value() { return max_value() >> 1; }
 
@@ -408,10 +408,11 @@ class PeriodicChannelImpl<T, std::enable_if_t<std::is_integral<T>::value>>
         : public ChannelBase<T> {
 public:
     static constexpr T max_value() { return std::numeric_limits<T>::max(); }
-    static constexpr T center_value() { return end_point() >> 1; }
+    static constexpr T center_value() { return (max_value() >> 1) + 1; }
     static constexpr T min_value() { return 0; }
-    static constexpr uintmax_t end_point() {
-        return uintmax_t(std::numeric_limits<T>::max()) + 1;
+
+    static constexpr double end_point() {
+        return double(std::numeric_limits<T>::max()) + 1;
     }
 
     constexpr T inverse() const {

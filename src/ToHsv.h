@@ -70,8 +70,7 @@ Hsv<T> to_hsv(const Rgb<T>& from) {
     }
 
     // c1 is guaranteed to be the max
-    auto max_channel_val = BoundedChannel<T>::end_point();
-    auto one_over_max = FloatType(1.0) / max_channel_val;
+    FloatType one_over_max = FloatType(1.0) / BoundedChannel<T>::end_point();
 
     auto chroma = FloatType(c1 - min_channel) * one_over_max;
     auto channel_diff = FloatType(c2 - c3) * one_over_max;

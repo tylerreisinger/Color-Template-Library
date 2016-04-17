@@ -21,7 +21,7 @@ struct tuple_transform_functor {
         constexpr auto shift =
                 ChanType<To>::min_value() - ChanType<From>::min_value();
 
-        return scaling_factor * chan.value + shift;
+        return chan.value * scaling_factor + shift;
     }
 };
 
@@ -44,8 +44,7 @@ template <typename To, typename From, template <typename> class Color>
 inline constexpr Color<To> color_cast(const Color<From>& color) {
     using FromColorType = Color<From>;
     using ToColorType = Color<To>;
-    using indices = std::make_integer_sequence<std::size_t,
-            FromColorType::num_channels>;
+    using indices = std::make_index_sequence<FromColorType::num_channels>;
 
     return details::color_cast_impl<To, ToColorType>(color, indices());
 }
