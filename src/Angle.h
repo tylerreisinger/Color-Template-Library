@@ -115,7 +115,7 @@ public:
     /// Normalize the angle value to the first
     //  period `[0, 2*pi)`.
     constexpr Radians<T> normalize() const {
-        return std::abs(std::modf(value, period_length()));
+        return Radians<T>(std::abs(std::fmod(value, period_length())));
     }
 
     /// Return the same angle expressed in Degrees.
