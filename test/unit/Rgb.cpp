@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <array>
+#include <type_traits>
 
 #include "Rgb.h"
 #include "Color.h"
@@ -186,5 +187,30 @@ TEST(Rgb, circular_chromacity) {
         ASSERT_LE(std::abs(ref_vals::CIRCULAR_CHROMA_TEST[i] - chroma),
                 ERROR_TOL);
         ASSERT_LE(std::abs(ref_vals::CIRCULAR_HUE_TEST[i] - hue), ERROR_TOL);
+    }
+}
+
+TEST(Rgb, distance) {
+    {
+        auto c1 = Rgb<float>(1.0, 0.0, 0.0);
+        auto c2 = Rgb<float>(0.0, 1.0, 1.0);
+
+        ASSERT_FLOAT_EQ(c1.distance(c2), 1.0);
+    }
+    {
+        auto c1 = Rgb<float>(0.25, 0.25, 0.40);
+        auto c2 = Rgb<float>(0.50, 0.40, 0.65);
+
+        ASSERT_FLOAT_EQ(c1.squared_distance(c2), 0.04916666666666666);
+        ASSERT_FLOAT_EQ(c1.distance(c2), 0.2217355782608345);
+    }
+    {
+        auto c1 = Rgb<uint8_t>(100, 200, 50);
+        auto c2 = Rgb<uint8_t>(166, 125, 150);
+
+        static_assert(std::is_floating_point<decltype(c1.distance(c2))>::value,
+                "distance() yields an integral result");
+
+        ASSERT_FLOAT_EQ(c1.distance(c2), 81.61086528969861);
     }
 }

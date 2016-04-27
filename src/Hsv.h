@@ -151,6 +151,38 @@ public:
                 _value.value * factor);
     }
 
+    template <typename PosType = std::
+                      conditional_t<std::is_floating_point<T>::value, T, float>,
+            typename std::enable_if_t<std::is_floating_point<PosType>::value,
+                    int> = 0>
+    PosType squared_distance(const Hsv<T>& rhs) const {
+        auto d_value = (value() - rhs.value());
+
+        auto d_mag_1 = saturation() * saturation();
+        auto d_mag_2 = rhs.saturation() * rhs.saturation();
+
+        auto h1_cos = std::cos(hue_angle<Radians>().value);
+        auto h1_sin = std::sin(hue_angle<Radians>().value);
+        auto h2_cos = std::cos(rhs.hue_angle<Radians>().value);
+        auto h2_sin = std::sin(rhs.hue_angle<Radians>().value);
+
+        auto x1 = 0.5 * d_mag_1 * h1_cos;
+        auto y1 = 0.5 * d_mag_1 * h1_sin;
+        auto x2 = 0.5 * d_mag_2 * h2_cos;
+        auto y2 = 0.5 * d_mag_2 * h2_sin;
+
+        auto dx = x1 - x2;
+        auto dy = y1 - y2;
+
+        return PosType(1.0 / 2.0) * (dx * dx + dy * dy + d_value * d_value);
+    }
+    template <typename PosType = std::
+                      conditional_t<std::is_floating_point<T>::value, T, float>>
+    PosType distance(const Hsv<T>& rhs) const {
+        return std::sqrt(squared_distance(rhs));
+    }
+
+
     /** Return the value of hue as an angle.
      *
      *  The angle will be represented as the

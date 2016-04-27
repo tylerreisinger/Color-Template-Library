@@ -182,6 +182,25 @@ public:
                 _blue.value * factor);
     }
 
+    template <typename PosType = std::
+                      conditional_t<std::is_floating_point<T>::value, T, float>,
+            typename std::enable_if_t<std::is_floating_point<PosType>::value,
+                    int> = 0>
+    constexpr PosType squared_distance(const Rgb<T>& rhs) const {
+        auto d_red = (red() - rhs.red());
+        auto d_green = (green() - rhs.green());
+        auto d_blue = (blue() - rhs.blue());
+
+        return PosType(1. / 3.) *
+                (d_red * d_red + d_green * d_green + d_blue * d_blue);
+    }
+
+    template <typename PosType = std::
+                      conditional_t<std::is_floating_point<T>::value, T, float>>
+    PosType distance(const Rgb<T>& rhs) const {
+        return std::sqrt(squared_distance(rhs));
+    }
+
     constexpr Rgb<T>& set_red(T value) {
         _red.value = value;
         return *this;

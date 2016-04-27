@@ -292,3 +292,17 @@ TEST(Hsv, chroma) {
         }
     }
 }
+
+TEST(Hsv, distance) {
+    {
+        auto c1 = Hsv<float>(0.0, 0.0, 0.0);
+        auto c2 = Hsv<float>(0.0, 0.0, 0.0);
+        ASSERT_FLOAT_EQ(c1.distance(c2), 0.0);
+    }
+    {
+        auto c1 = Hsv<float>(0.5, 1.0, 0.0);
+        auto c2 = Hsv<float>(0.0, 1.0, 1.0);
+
+        ASSERT_FLOAT_EQ(c1.distance(c2), 1.0);
+    }
+}
