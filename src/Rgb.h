@@ -31,6 +31,9 @@ constexpr Rgb<T> operator+(const Rgb<T>& lhs, const Rgb<T>& rhs);
 template <typename T>
 constexpr Rgb<T> operator-(const Rgb<T>& lhs, const Rgb<T>& rhs);
 
+template <typename T>
+constexpr void swap(Rgb<T>& lhs, Rgb<T>& rhs);
+
 
 /// Convenience type for Rgb colors with an alpha channel.
 template <typename T>
@@ -268,6 +271,8 @@ public:
     friend Rgb<T> operator+<T>(const Rgb<T>& lhs, const Rgb<T>& rhs);
     friend Rgb<T> operator-<T>(const Rgb<T>& lhs, const Rgb<T>& rhs);
 
+    friend void swap<T>(Rgb<T>& lhs, Rgb<T>& rhs);
+
 protected:
     BoundedChannel<T> _red;
     BoundedChannel<T> _green;
@@ -302,6 +307,13 @@ inline T chroma(const Rgb<T>& color) {
     std::tie(min, max) =
             std::minmax({color.red(), color.green(), color.blue()});
     return max - min;
+}
+
+template <typename T>
+constexpr inline void swap(Rgb<T>& lhs, Rgb<T>& rhs) {
+    std::swap(lhs._red, rhs._red);
+    std::swap(lhs._green, rhs._green);
+    std::swap(lhs._blue, rhs._blue);
 }
 
 /** Returns a pair of chromacity coordinates.

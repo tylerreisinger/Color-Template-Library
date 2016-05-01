@@ -214,3 +214,13 @@ TEST(Rgb, distance) {
         ASSERT_FLOAT_EQ(c1.distance(c2), 81.61086528969861);
     }
 }
+
+TEST(Rgb, swap) {
+    auto c1 = Rgb<uint8_t>(120, 240, 55);
+    auto c2 = Rgb<uint8_t>(183, 59, 111);
+
+    swap(c1, c2);
+
+    ASSERT_EQ(c1, Rgb<uint8_t>(183, 59, 111));
+    ASSERT_EQ(c2, Rgb<uint8_t>(120, 240, 55));
+}

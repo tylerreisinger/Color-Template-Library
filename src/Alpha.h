@@ -13,6 +13,12 @@
 
 namespace color {
 
+template <typename T, template <typename> class Color>
+class Alpha;
+
+template <typename T, template <typename> class Color>
+constexpr void swap(Alpha<T, Color>& lhs, Alpha<T, Color>& rhs);
+
 /** Defines a color with an alpha channel specifying opacity.
 *   Alpha is a composite color that wraps another color type
 *   and provides convenience methods for acting on the
@@ -207,6 +213,8 @@ public:
         return Alpha<T, Color>(Color<T>::broadcast(value), value);
     }
 
+    friend void swap<T, Color>(Alpha<T, Color>& lhs, Alpha<T, Color>& rhs);
+
 private:
     Color<T> _color;
     BoundedChannel<T> _alpha;
@@ -291,6 +299,13 @@ template <typename T, template <typename> class Color>
 Alpha<T, Color> alpha_blend(const Alpha<T, Color>& src, const Color<T>& dest) {
     return Alpha<T, Color>(src.color().lerp(dest, 1.0 - src.alpha()),
             BoundedChannel<T>::max_value());
+}
+
+template <typename T, template <typename> class Color>
+constexpr inline void swap(Alpha<T, Color>& lhs, Alpha<T, Color>& rhs) {
+    using std::swap;
+    swap(lhs._color, rhs._color);
+    swap(lhs._alpha, rhs._alpha);
 }
 }
 

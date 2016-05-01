@@ -310,3 +310,14 @@ TEST(Hsv, distance) {
 TEST(Hsv, is_standard_layout) {
     ASSERT_TRUE(std::is_standard_layout<Hsv<uint8_t>>::value);
 }
+
+TEST(Hsv, swap) {
+    auto c1 = Hsv<float>(0.2, 0.3, 0.4);
+    auto c2 = Hsv<float>(0.5, 0.6, 0.7);
+
+    swap(c1, c2);
+    std::cout << c2 << std::endl;
+
+    ASSERT_TRUE(float_eq(c1, Hsv<float>(0.5, 0.6, 0.7)));
+    ASSERT_TRUE(float_eq(c2, Hsv<float>(0.2, 0.3, 0.4)));
+}

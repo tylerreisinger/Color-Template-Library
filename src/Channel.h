@@ -491,6 +491,16 @@ class PeriodicChannel : public details::PeriodicChannelImpl<T> {
 public:
     using details::PeriodicChannelImpl<T>::PeriodicChannelImpl;
 };
+
+template <typename T>
+inline void swap(BoundedChannel<T>& lhs, BoundedChannel<T>& rhs) {
+    std::swap(lhs.value, rhs.value);
+}
+
+template <typename T>
+inline void swap(PeriodicChannel<T>& lhs, PeriodicChannel<T>& rhs) {
+    std::swap(lhs.value, rhs.value);
+}
 }
 
 #endif
