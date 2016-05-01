@@ -150,3 +150,13 @@ TEST(Alpha, alpha_blend) {
                 alpha_blend(c1, c2), color::Rgba<uint8_t>(150, 149, 127, 255));
     }
 }
+
+TEST(Alpha, swap) {
+    auto c1 = color::Rgba<uint16_t>(1000, 55555, 22121, 0);
+    auto c2 = color::Rgba<uint16_t>(50, 550, 5550, 55550);
+
+    swap(c1, c2);
+
+    ASSERT_EQ(c1, color::Rgba<uint16_t>(50, 550, 5550, 55550));
+    ASSERT_EQ(c2, color::Rgba<uint16_t>(1000, 55555, 22121, 0));
+}

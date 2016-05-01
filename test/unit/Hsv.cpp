@@ -306,3 +306,14 @@ TEST(Hsv, distance) {
         ASSERT_FLOAT_EQ(c1.distance(c2), 1.0);
     }
 }
+
+TEST(Hsv, swap) {
+    auto c1 = Hsv<float>(0.2, 0.3, 0.4);
+    auto c2 = Hsv<float>(0.5, 0.6, 0.7);
+
+    swap(c1, c2);
+    std::cout << c2 << std::endl;
+
+    ASSERT_TRUE(float_eq(c1, Hsv<float>(0.5, 0.6, 0.7)));
+    ASSERT_TRUE(float_eq(c2, Hsv<float>(0.2, 0.3, 0.4)));
+}
