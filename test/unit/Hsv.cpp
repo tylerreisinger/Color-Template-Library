@@ -306,3 +306,7 @@ TEST(Hsv, distance) {
         ASSERT_FLOAT_EQ(c1.distance(c2), 1.0);
     }
 }
+
+TEST(Hsv, is_standard_layout) {
+    ASSERT_TRUE(std::is_standard_layout<Hsv<uint8_t>>::value);
+}

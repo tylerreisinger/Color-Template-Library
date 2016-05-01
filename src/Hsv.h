@@ -5,6 +5,8 @@
 #ifndef COLOR_HSV_H_
 #define COLOR_HSV_H_
 
+#include "CylindricalColor.h"
+
 #include <ostream>
 #include <tuple>
 
@@ -38,17 +40,16 @@ std::ostream& operator<<(std::ostream& stream, const Hsv<T>& rhs);
  *  * data()[2]: Value
  */
 template <typename T>
-class Hsv {
+class Hsv: public CylindricalColor<T, Hsv<T>> {
+    using Base = CylindricalColor<T, Hsv<T>>;
+    friend class CylindricalColor<T, Hsv<T>>;
 public:
-    static constexpr int num_channels = 3;
+    static constexpr int num_channels = Base::num_channels;
 
-    using ElementType = T;
-    using TupleType = std::tuple<T, T, T>;
-    using ChannelTupleType = std::tuple<PeriodicChannel<T>&,
-            BoundedChannel<T>&,
-            BoundedChannel<T>&>;
-    using ConstChannelTupleType =
-            std::tuple<PeriodicChannel<T>, BoundedChannel<T>, BoundedChannel<T>>;
+    using ElementType = typename Base::ElementType;
+    using TupleType = typename Base::TupleType;
+    using ChannelTupleType = typename Base::ChannelTupleType;
+    using ConstChannelTupleType = typename Base::ConstChannelTupleType;
 
     ~Hsv() = default;
 
@@ -58,13 +59,13 @@ public:
     Hsv& operator=(Hsv&& other) noexcept = default;
 
     /// Construct an Hsv instance with all components set to 0.
-    constexpr Hsv() : _hue(T(0)), _saturation(T(0)), _value(T(0)) {}
+    constexpr Hsv(): Base() {}
     /// Construct an Hsv instance with specific component values.
     constexpr Hsv(T hue, T saturation, T value)
-        : _hue(hue), _saturation(saturation), _value(value) {}
+        : Base(hue, saturation, value) {}
     template <template <typename> class Angle, typename U>
     constexpr Hsv(Angle<U> hue, T saturation, T value)
-        : Hsv(hue.to_normalized_coordinate(), saturation, value) {}
+        : Base(hue, saturation, value) {}
 
     /** Construct an Hsv instance from an array of values.
      *  \a values must contain at least three values, and
@@ -85,178 +86,15 @@ public:
     explicit constexpr Hsv(const TupleType& values)
         : Hsv(std::get<0>(values), std::get<1>(values), std::get<2>(values)) {}
 
-    /// Strict equality of two Hsv instances.
-    constexpr bool operator==(const Hsv<T>& rhs) const {
-        return (_hue == rhs._hue && _saturation == rhs._saturation &&
-                _value == rhs._value);
-    }
-    /// Strict inequality of two Hsv instances.
-    constexpr bool operator!=(const Hsv<T>& rhs) const {
-        return !(*this == rhs);
-    }
+    constexpr BoundedChannel<T>& value_channel() { return _c3; }
+    constexpr BoundedChannel<T> value_channel() const { return _c3; }
 
-    /// Return a pointer to the internal array of components.
-    constexpr T* data() { return reinterpret_cast<T*>(this); }
+    constexpr T& value() { return _c3.value; }
+    constexpr T value() const { return _c3.value; }
 
-    /** Return a pointer to the internal array of components.
-     */
-    constexpr const T* data() const { return reinterpret_cast<const T*>(this); }
-
-    /// Clamp each component to the range `[min, max]`.
-    constexpr Hsv<T> clamp(T min, T max) const {
-        return Hsv<T>(_hue.clamp(min, max),
-                _saturation.clamp(min, max),
-                _value.clamp(min, max));
-    }
-
-    /** Return a copy of the color with all channels clamped to the "normal"
-     *  range. For integer components, values are always normalized, but
-     *  floating point components are normalized to the range `[0, 1]`. For hue,
-     *  it will "wrap" in a periodic fashion values outside the range.
-     */
-    constexpr Hsv<T> normalize() const {
-        return Hsv<T>(
-                _hue.normalize(), _saturation.normalize(), _value.normalize());
-    }
-
-    template <typename Pos>
-    constexpr Hsv<T> lerp_flat(const Hsv<T>& end, Pos pos) const {
-        return Hsv<T>(_hue.lerp_flat(end.hue(), pos),
-                _saturation.lerp_flat(end.saturation(), pos),
-                _value.lerp_flat(end.value(), pos));
-    }
-
-    template <typename Pos>
-    constexpr Hsv<T> lerp(const Hsv<T>& end, Pos pos) const {
-        return Hsv<T>(_hue.lerp(end.hue(), pos),
-                _saturation.lerp(end.saturation(), pos),
-                _value.lerp(end.value(), pos));
-    }
-
-    /** Return the inverse of the color.
-     *  The inverse is the maximum value minus the current value.
-     */
-    constexpr Hsv<T> inverse() const {
-        return Hsv<T>(_hue.inverse(), _saturation.inverse(), _value.inverse());
-    }
-
-    /** Return a copy of the color with all components scaled by a constant
-     * factor.
-     */
-    template <typename U,
-            typename std::enable_if_t<std::is_floating_point<U>::value, int> = 0>
-    constexpr Hsv<T> scale(U factor) const {
-        return Hsv<T>(_hue.value * factor,
-                _saturation.value * factor,
-                _value.value * factor);
-    }
-
-    template <typename PosType = std::
-                      conditional_t<std::is_floating_point<T>::value, T, float>,
-            typename std::enable_if_t<std::is_floating_point<PosType>::value,
-                    int> = 0>
-    PosType squared_distance(const Hsv<T>& rhs) const {
-        auto d_value = (value() - rhs.value());
-
-        auto d_mag_1 = saturation() * saturation();
-        auto d_mag_2 = rhs.saturation() * rhs.saturation();
-
-        auto h1_cos = std::cos(hue_angle<Radians>().value);
-        auto h1_sin = std::sin(hue_angle<Radians>().value);
-        auto h2_cos = std::cos(rhs.hue_angle<Radians>().value);
-        auto h2_sin = std::sin(rhs.hue_angle<Radians>().value);
-
-        auto x1 = 0.5 * d_mag_1 * h1_cos;
-        auto y1 = 0.5 * d_mag_1 * h1_sin;
-        auto x2 = 0.5 * d_mag_2 * h2_cos;
-        auto y2 = 0.5 * d_mag_2 * h2_sin;
-
-        auto dx = x1 - x2;
-        auto dy = y1 - y2;
-
-        return PosType(1.0 / 2.0) * (dx * dx + dy * dy + d_value * d_value);
-    }
-    template <typename PosType = std::
-                      conditional_t<std::is_floating_point<T>::value, T, float>>
-    PosType distance(const Hsv<T>& rhs) const {
-        return std::sqrt(squared_distance(rhs));
-    }
-
-
-    /** Return the value of hue as an angle.
-     *
-     *  The angle will be represented as the
-     *  corresponding `Angle` class, e.g.
-     *  Degrees or Radians. Any class
-     *  can be used as an angle type
-     *  as long as it defines a static
-     *  `from_normalized_coordinate` function
-     *  and accepts a single template parameter.
-     *
-     *  For floating point colors, only the
-     *  Angle type must be specified. The internal
-     *  type for Angle will match the ElementType
-     *  of the color. For integer colors, or to
-     *  specifically use a different datatype in the
-     *  Angle, a second type parameter should be specified
-     *  giving this type. Using an integral type for U is
-     *  disallowed.
-     *
-     *  Example:
-     *  ```
-     *  auto float_color = Hsv<float>(0, 0, 0);
-     *  auto angle_in_degrees = float_color.hue_angle<Degrees>().value;
-     *
-     *  auto int_color = Hsv<uint8_t>(0, 0, 0);
-     *  angle_in_degrees = int_color.hue_angle<Degrees, float>().value;
-     *  ```
-     */
-    template <template <typename> class Angle, typename U = T>
-    constexpr Angle<U> hue_angle() const {
-        return _hue.template get_angle<Angle, U>();
-    }
-
-    template <template <typename> class Angle, typename U>
-    constexpr Hsv<T>& set_hue_angle(Angle<U> angle) {
-        _hue.set_angle(angle);
-        return *this;
-    }
-
-    constexpr T& hue() { return _hue.value; }
-    constexpr T& saturation() { return _saturation.value; }
-    constexpr T& value() { return _value.value; }
-    constexpr T hue() const { return _hue.value; }
-    constexpr T saturation() const { return _saturation.value; }
-    constexpr T value() const { return _value.value; }
-    constexpr Hsv<T>& set_hue(T value) {
-        _hue.value = value;
-        return *this;
-    }
-    constexpr Hsv<T>& set_saturation(T value) {
-        _saturation.value = value;
-        return *this;
-    }
     constexpr Hsv<T>& set_value(T value) {
-        _value.value = value;
+        _c3.value = value;
         return *this;
-    }
-
-    /// Return channel values as an tuple.
-    constexpr TupleType as_tuple() const {
-        return std::make_tuple(_hue.value, _saturation.value, _value.value);
-    }
-
-    /// Return channel values as an array.
-    constexpr std::array<T, num_channels> as_array() const {
-        return {_hue.value, _saturation.value, _value.value};
-    }
-
-    constexpr ChannelTupleType channel_tuple() {
-        return std::make_tuple(_hue, _saturation, _value);
-    }
-
-    constexpr ConstChannelTupleType channel_tuple() const {
-        return std::make_tuple(_hue, _saturation, _value);
     }
 
     /// Return a new Hsv instance with all components set to \a value.
@@ -266,10 +104,10 @@ public:
 
     friend std::ostream& operator<<<T>(std::ostream& stream, const Hsv<T>& rhs);
 
-private:
-    PeriodicChannel<T> _hue;
-    BoundedChannel<T> _saturation;
-    BoundedChannel<T> _value;
+protected:
+    using Base::_hue;
+    using Base::_saturation;
+    using Base::_c3;
 };
 
 /** Print an Hsv instance to a stream.
@@ -278,7 +116,7 @@ private:
 template <typename T>
 inline std::ostream& operator<<(std::ostream& stream, const Hsv<T>& rhs) {
     stream << "HSV(" << rhs._hue << ", " << rhs._saturation << ", "
-           << rhs._value << ")";
+           << rhs.value_channel() << ")";
     return stream;
 }
 
@@ -300,6 +138,7 @@ template <typename T>
 inline T chroma(const Hsv<T>& color) {
     return color.saturation() * color.value();
 }
+
 }
 
 #endif
