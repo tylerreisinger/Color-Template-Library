@@ -106,20 +106,14 @@ public:
     }
 
     friend std::ostream& operator<<<T>(std::ostream& stream, const Hsv<T>& rhs);
+    friend void swap<T>(Hsv<T>& lhs, Hsv<T>& rhs);
 
-<<<<<<< HEAD
 protected:
     using Base::_hue;
     using Base::_saturation;
     using Base::_c3;
-=======
-    friend void swap<T>(Hsv<T>& lhs, Hsv<T>& rhs);
 
 private:
-    PeriodicChannel<T> _hue;
-    BoundedChannel<T> _saturation;
-    BoundedChannel<T> _value;
->>>>>>> master
 };
 
 /** Print an Hsv instance to a stream.
@@ -151,15 +145,12 @@ inline T chroma(const Hsv<T>& color) {
     return color.saturation() * color.value();
 }
 
-<<<<<<< HEAD
-=======
 template <typename T>
 constexpr inline void swap(Hsv<T>& lhs, Hsv<T>& rhs) {
     swap(lhs._hue, rhs._hue);
     swap(lhs._saturation, rhs._saturation);
-    swap(lhs._value, rhs._value);
+    swap(lhs._c3, rhs._c3);
 }
->>>>>>> master
 }
 
 #endif
