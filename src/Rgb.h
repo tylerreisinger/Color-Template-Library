@@ -302,7 +302,7 @@ inline std::ostream& operator<<(std::ostream& stream, const Rgb<T>& rgb) {
 }
 
 template <typename T>
-inline T chroma(const Rgb<T>& color) {
+constexpr inline T chroma(const Rgb<T>& color) {
     T min, max;
     std::tie(min, max) =
             std::minmax({color.red(), color.green(), color.blue()});
