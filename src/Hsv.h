@@ -127,21 +127,21 @@ inline std::ostream& operator<<(std::ostream& stream, const Hsv<T>& rhs) {
 }
 
 template <typename T>
-Hsv<T> operator+(const Hsv<T>& lhs, const Hsv<T>& rhs) {
+constexpr inline Hsv<T> operator+(const Hsv<T>& lhs, const Hsv<T>& rhs) {
     return Hsv<T>(lhs.hue() + rhs.hue(),
             lhs.saturation() + rhs.saturation(),
             lhs.value() + rhs.value());
 }
 
 template <typename T>
-Hsv<T> operator-(const Hsv<T>& lhs, const Hsv<T>& rhs) {
+constexpr inline Hsv<T> operator-(const Hsv<T>& lhs, const Hsv<T>& rhs) {
     return Hsv<T>(lhs.hue() - rhs.hue(),
             lhs.saturation() - rhs.saturation(),
             lhs.value() - rhs.value());
 }
 
 template <typename T>
-inline T chroma(const Hsv<T>& color) {
+constexpr inline T chroma(const Hsv<T>& color) {
     return color.saturation() * color.value();
 }
 
