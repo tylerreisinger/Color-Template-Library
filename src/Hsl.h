@@ -7,9 +7,23 @@ namespace color {
 
 template<typename T>
 class Hsl;
+template<typename T, template <typename> class Color>
+class Alpha;
 
 template<typename T>
 constexpr void swap(Hsl<T>& lhs, Hsl<T>& rhs);
+
+///Convenience type for an Hsl color with an alpha channel.
+template<typename T>
+using Hsla = Alpha<T, Hsl>;
+
+///Synonym for Hsl, some people prefer to call
+///'lightness' 'brightness'.
+template<typename T>
+using Hsb = Hsl<T>;
+///Synonym for Hsla.
+template<typename T>
+using Hsba = Hsla<T>;
 
 template<typename T>
 class Hsl: public CylindricalColor<T, Hsl<T>> {
@@ -46,13 +60,23 @@ public:
 
     constexpr BoundedChannel<T>& lightness_channel() { return _c3; }
     constexpr BoundedChannel<T> lightness_channel() const { return _c3; }
+    constexpr BoundedChannel<T>& brightness_channel() { return lightness_channel; }
+    constexpr BoundedChannel<T> brightness_channel() const { return lightness_channel; }
 
     constexpr T& lightness() { return _c3.value; }
     constexpr T lightness() const { return _c3.value; }
+    ///Synonym for lightness().
+    constexpr T& brightness() { return lightness(); }
+    ///Synonym for lightness().
+    constexpr T brightness() const { return lightness(); }
 
     constexpr Hsl<T>& set_lightness(T value) {
         _c3.value = value;
         return *this;
+    }
+    ///Synonym for set_lightness(T).
+    constexpr Hsl<T>& set_brightness(T value) {
+        return set_lightness(value);
     }
 
     static constexpr Hsl<T> broadcast(T value) {
