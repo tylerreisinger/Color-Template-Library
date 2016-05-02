@@ -7,8 +7,8 @@ set(UNIT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Hsv.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Packer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Rgb.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/RgbConversions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/StreamPacker.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/ToHsv.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Unpacker.cpp
     )
