@@ -10,6 +10,8 @@
 #include "Hsv.h"
 #include "Rgb.h"
 
+#include "ConvertUtil.h"
+
 namespace color {
 
 /** Convert `from` to an Hsv equivalent.
@@ -19,55 +21,37 @@ template <typename T,
 Hsv<T> to_hsv(const Rgb<T>& from) {
     // Used to avoid division by zero by making the number
     // very slightly greater than zero.
-    const auto EPSILON = 1e-15;
+    const auto EPSILON = T(1e-10);
     auto c1 = from.red();
     auto c2 = from.green();
     auto c3 = from.blue();
+    T min_channel;
 
-    auto scaling_factor = T(0.0);
+    T scaling_factor = details::order_channels_for_hue(c1, c2, c3, min_channel);
 
-    if(c2 < c3) {
-        std::swap(c2, c3);
-        scaling_factor = -1.0;
-    }
-    auto min_channel = c3;
-    if(c1 < c2) {
-        std::swap(c1, c2);
-        scaling_factor = -(1.0 / 3.0) - scaling_factor;
-        min_channel = std::min(c2, c3);
-    }
-
-    // c1 is guaranteed to be the max
-    auto chroma = c1 - min_channel;
-    auto hue = std::abs(scaling_factor + (c2 - c3) / (6.0 * chroma + EPSILON));
+    auto max_channel = c1;
+    auto chroma = details::chroma(max_channel, min_channel);
+    auto hue = details::hue(chroma, scaling_factor, c2, c3);
     auto value = c1;
     auto saturation = chroma / (value + EPSILON);
     return Hsv<T>(hue, saturation, value);
 }
 
+//Specialization for integer-typed channels.
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
 Hsv<T> to_hsv(const Rgb<T>& from) {
     // Used to avoid division by zero by making the number
     // very slightly greater than zero.
-    const auto EPSILON = FloatType(1e-8);
+    const auto EPSILON = FloatType(1e-10);
     auto c1 = from.red();
     auto c2 = from.green();
     auto c3 = from.blue();
+    T min_channel;
 
-    auto scaling_factor = FloatType(0.0);
-
-    if(c2 < c3) {
-        std::swap(c2, c3);
-        scaling_factor = -FloatType(1.0);
-    }
-    auto min_channel = c3;
-    if(c1 < c2) {
-        std::swap(c1, c2);
-        scaling_factor = FloatType(-1.0 / 3.0) - scaling_factor;
-        min_channel = std::min(c2, c3);
-    }
+    auto scaling_factor = details::order_channels_for_hue<T, FloatType>(
+        c1, c2, c3, min_channel);
 
     // c1 is guaranteed to be the max
     FloatType one_over_max = FloatType(1.0) / BoundedChannel<T>::end_point();
