@@ -12,7 +12,7 @@
 
 using namespace color;
 
-TEST(ToHsv, rgb_to_hsv) {
+TEST(RgbConversions, rgb_to_hsv) {
     {
         auto rgb = color_cast<float>(Rgb<uint8_t>(100, 200, 255));
 
@@ -67,7 +67,7 @@ TEST(ToHsv, rgb_to_hsv) {
     }
 }
 
-TEST(ToHsv, hsv_to_rgb) {
+TEST(RgbConversions, hsv_to_rgb) {
     {
         auto hsv = Hsva<float>(0.55, 0.25, 0.5, 0.8);
         auto rgb = to_rgb(hsv);
