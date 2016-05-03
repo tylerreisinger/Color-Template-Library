@@ -2,8 +2,10 @@
 
 #include "ToHsv.h"
 #include "ToRgb.h"
+#include "ToHsl.h"
 #include "ColorCast.h"
 #include "Hsv.h"
+#include "Hsl.h"
 #include "Alpha.h"
 
 #include <iostream>
@@ -165,5 +167,52 @@ TEST(RgbConversions, hsv_to_rgb) {
             auto rgb = to_rgb(hsv);
             ASSERT_EQ(rgb, Rgba<uint16_t>(0, 0, 0, 0));
         }
+    }
+}
+
+TEST(RgbConversions, to_hsl) {
+    // Test a list of reference values, both ways.
+    for(int i = 0; i < ref_vals::RGB_TEST.size(); ++i) {
+        const auto test_rgb = ref_vals::RGB_TEST[i];
+        const auto hsl = to_hsl(test_rgb);
+        const auto ref_color = ref_vals::HSL_TEST[i];
+
+        const auto ERROR_TOL = 1e-3;
+
+        //Test all reference colors Rgb->Hsl.
+        ASSERT_LE(std::abs(hsl.hue() - ref_color.hue()),
+                ERROR_TOL);
+        ASSERT_LE(std::abs(hsl.saturation() - ref_color.saturation()),
+                ERROR_TOL);
+        ASSERT_LE(std::abs(hsl.lightness() - ref_color.lightness()),
+                ERROR_TOL);
+
+        //Test going from the Hsl result back to the (hopefully original)
+        //Rgb.
+        const auto rgb = to_rgb(hsl);
+
+        ASSERT_LE(std::abs(rgb.red() - test_rgb.red()), ERROR_TOL);
+        ASSERT_LE(std::abs(rgb.green() - test_rgb.green()), ERROR_TOL);
+        ASSERT_LE(std::abs(rgb.blue() - test_rgb.blue()), ERROR_TOL);
+    }
+}
+
+TEST(RgbConversions, hsl_to_rgb) {
+    for(int i = 0; i < ref_vals::HSL_TEST.size(); ++i) {
+        const auto test_hsl = ref_vals::HSL_TEST[i];
+        const auto rgb = to_rgb(test_hsl);
+        const auto ref_color = ref_vals::RGB_TEST[i];
+        const auto ERROR_TOL = 1e-3;
+
+        //To rgb...
+        ASSERT_LE(std::abs(rgb.red() - ref_color.red()), ERROR_TOL);
+        ASSERT_LE(std::abs(rgb.green() - ref_color.green()), ERROR_TOL);
+        ASSERT_LE(std::abs(rgb.blue() - ref_color.blue()), ERROR_TOL);
+
+        //...And back
+        const auto hsl = to_hsl(rgb);
+        ASSERT_LE(std::abs(hsl.hue() -test_hsl.hue()), ERROR_TOL);
+        ASSERT_LE(std::abs(hsl.saturation() -test_hsl.saturation()), ERROR_TOL);
+        ASSERT_LE(std::abs(hsl.brightness() -test_hsl.brightness()), ERROR_TOL);
     }
 }
