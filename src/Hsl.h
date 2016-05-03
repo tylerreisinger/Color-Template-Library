@@ -1,6 +1,8 @@
 #ifndef COLOR_HSL_H_
 #define COLOR_HSL_H_
 
+#include <cmath>
+
 #include "CylindricalColor.h"
 
 namespace color {
@@ -117,6 +119,12 @@ constexpr inline void swap(Hsl<T>& lhs, Hsl<T>& rhs) {
     swap(lhs._hue, rhs._hue);
     swap(lhs._saturation, rhs._saturation);
     swap(lhs._c3, rhs._c3);
+}
+
+template<typename T>
+constexpr inline T chroma(const Hsl<T>& color) {
+    return (1.0 - std::abs(2.0*color.lightness() - 1.0))
+        * color.saturation();
 }
 
 }
