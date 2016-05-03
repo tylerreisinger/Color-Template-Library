@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <limits>
 
 namespace color {
 namespace details {
@@ -42,6 +43,26 @@ constexpr inline T hue(T chroma, T scaling, T c2, T c3, const T EPSILON = 1e-10)
     return std::abs(scaling + (c2 - c3) / (6.0 * chroma + EPSILON));
 }
 
+/** Compute a segment (between 0 and 5) for a normalized hue and a
+ *  position in that segment. The segment corresponds to a piecewise
+ *  portion of the hue->rgb function. Non-normalized hue can return
+ *  a value outside of [0, 5].
+ */
+template<typename T,
+    typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+constexpr inline int decompose_hue(T hue, T& frac_out) {
+    const auto scaled_hue = hue * 6.0;
+    auto seg = static_cast<int>(scaled_hue);
+    frac_out = scaled_hue - seg;
+    return seg;
+}
+
+template<typename T,
+    typename FloatType = float,
+    typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+constexpr inline int decompose_hue(T hue, T& frac_out) {
+    return decompose_hue(static_cast<FloatType>(hue / std::numeric_limits<T>::max()));
+}
 
 }
 }

@@ -7,7 +7,9 @@
 
 #include "Rgb.h"
 #include "Hsv.h"
+#include "Hsl.h"
 #include "ColorCast.h"
+#include "ConvertUtil.h"
 
 namespace color {
 
@@ -16,9 +18,8 @@ template <typename T,
 Rgb<T> to_rgb(const Hsv<T>& from) {
     Rgb<T> out;
 
-    auto hue_seg = static_cast<int>(from.hue() * 6.0);
-
-    auto hue_frac = from.hue() * 6.0 - hue_seg;
+    T hue_frac;
+    auto hue_seg = details::decompose_hue(from.hue(), hue_frac);
 
     auto color_min_bound = from.value() * (1.0 - from.saturation());
 
