@@ -32,6 +32,38 @@ inline constexpr auto color_cast_impl(
 
     return ToColor((transform_fn(std::get<indices>(color.channel_tuple())))...);
 }
+
+template <typename To,
+        typename From,
+        template <typename> class Color,
+        typename enable = void>
+struct color_cast_specialization;
+
+template <typename To, typename From, template <typename> class Color>
+struct color_cast_specialization<To,
+        From,
+        Color,
+        std::enable_if_t<!std::is_same<To, From>::value>> {
+    inline static constexpr Color<To> cast(const Color<From>& color) {
+        using FromColorType = Color<From>;
+        using ToColorType = Color<To>;
+        using indices = std::make_index_sequence<FromColorType::num_channels>;
+
+        return details::color_cast_impl<To, ToColorType>(color, indices());
+    }
+};
+
+// In the case where To and From are equivalent,
+// make color_cast just return its argument.
+//
+// This is useful primarily in generic code and ensures
+// that such a cast will not modify the color.
+template <typename To, template <typename> class Color>
+struct color_cast_specialization<To, To, Color> {
+    inline static constexpr Color<To> cast(const Color<To>& color) {
+        return color;
+    }
+};
 }
 
 /** Convert the components of `color` from one data type to another.
@@ -42,11 +74,7 @@ inline constexpr auto color_cast_impl(
  */
 template <typename To, typename From, template <typename> class Color>
 inline constexpr Color<To> color_cast(const Color<From>& color) {
-    using FromColorType = Color<From>;
-    using ToColorType = Color<To>;
-    using indices = std::make_index_sequence<FromColorType::num_channels>;
-
-    return details::color_cast_impl<To, ToColorType>(color, indices());
+    return details::color_cast_specialization<To, From, Color>::cast(color);
 }
 
 /** Convert the components of `color` from one data type to another.
