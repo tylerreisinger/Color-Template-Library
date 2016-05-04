@@ -200,6 +200,10 @@ public:
         return std::make_tuple(_hue, _saturation, _c3);
     }
 
+    /// Return a new color with all components set to \a value.
+    static constexpr Subclass broadcast(T value) {
+        return Subclass(value, value, value);
+    }
 
     /// Strict equality of two colors.
     constexpr bool operator==(const Subclass& rhs) const {

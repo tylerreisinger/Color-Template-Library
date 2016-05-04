@@ -100,11 +100,6 @@ public:
         return *this;
     }
 
-    /// Return a new Hsv instance with all components set to \a value.
-    static constexpr Hsv<T> broadcast(T value) {
-        return Hsv<T>(value, value, value);
-    }
-
     friend std::ostream& operator<<<T>(std::ostream& stream, const Hsv<T>& rhs);
     friend void swap<T>(Hsv<T>& lhs, Hsv<T>& rhs);
 

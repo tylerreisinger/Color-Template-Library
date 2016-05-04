@@ -81,10 +81,6 @@ public:
         return set_lightness(value);
     }
 
-    static constexpr Hsl<T> broadcast(T value) {
-        return Hsl<T>(value, value, value);
-    }
-
     friend constexpr void swap<T>(Hsl<T>& lhs, Hsl<T>& rhs);
 
 protected:
