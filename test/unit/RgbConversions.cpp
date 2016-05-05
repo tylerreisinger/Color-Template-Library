@@ -11,8 +11,34 @@
 #include <iostream>
 
 #include "ConversionRef.h"
+#include "Assertions.h"
 
 using namespace color;
+
+template <typename T>
+void rgb_to_hsv_test_function(T ERROR_TOL) {
+    for(int i = 0; i < ref_vals::RGB_TEST.size(); ++i) {
+        const auto test_rgb = color_cast<T>(ref_vals::RGB_TEST[i]);
+        const auto hsv = to_hsv(test_rgb);
+        const auto rgb2 = to_rgb(hsv);
+        const auto ref_color = color_cast<T>(ref_vals::HSV_TEST[i]);
+
+        ASSERT_TRUE(equal_within_error(hsv.hue(), ref_color.hue(), ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(
+                hsv.saturation(), ref_color.saturation(), ERROR_TOL));
+        ASSERT_TRUE(
+                equal_within_error(hsv.value(), ref_color.value(), ERROR_TOL));
+
+        const T BACK_ERROR_TOL = 2 * ERROR_TOL;
+        ASSERT_TRUE(
+                equal_within_error(rgb2.red(), test_rgb.red(), BACK_ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(
+                rgb2.green(), test_rgb.green(), BACK_ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(
+                rgb2.blue(), test_rgb.blue(), BACK_ERROR_TOL));
+    }
+}
+
 
 TEST(RgbConversions, rgb_to_hsv) {
     {
@@ -97,27 +123,12 @@ TEST(RgbConversions, hsv_to_rgb) {
 
     {
         // Test a list of reference values, both ways.
-        for(int i = 0; i < ref_vals::RGB_TEST.size(); ++i) {
-            auto hsv = to_hsv(ref_vals::RGB_TEST[i]);
-            auto rgb2 = to_rgb(hsv);
-
-            const auto ERROR_TOL = 5e-4f;
-
-            ASSERT_LE(std::abs(hsv.hue() - ref_vals::HSV_TEST[i].hue()),
-                    ERROR_TOL);
-            ASSERT_LE(std::abs(hsv.saturation() -
-                              ref_vals::HSV_TEST[i].saturation()),
-                    ERROR_TOL);
-            ASSERT_LE(std::abs(hsv.value() - ref_vals::HSV_TEST[i].value()),
-                    ERROR_TOL);
-
-            ASSERT_LE(std::abs(rgb2.red() - ref_vals::RGB_TEST[i].red()),
-                    ERROR_TOL);
-            ASSERT_LE(std::abs(rgb2.green() - ref_vals::RGB_TEST[i].green()),
-                    ERROR_TOL);
-            ASSERT_LE(std::abs(rgb2.blue() - ref_vals::RGB_TEST[i].blue()),
-                    ERROR_TOL);
-        }
+        rgb_to_hsv_test_function<float>(1e-3f);
+        rgb_to_hsv_test_function<double>(1e-3f);
+        rgb_to_hsv_test_function<uint8_t>(2);
+        rgb_to_hsv_test_function<uint16_t>(65);
+        rgb_to_hsv_test_function<uint32_t>(
+                std::numeric_limits<uint32_t>::max() / 1000);
     }
 
     {
@@ -170,49 +181,81 @@ TEST(RgbConversions, hsv_to_rgb) {
     }
 }
 
-TEST(RgbConversions, to_hsl) {
-    // Test a list of reference values, both ways.
+// Generic function to run the test on several data types.
+template <typename T>
+void rgb_to_hsl_test_function(T ERROR_TOL) {
     for(int i = 0; i < ref_vals::RGB_TEST.size(); ++i) {
-        const auto test_rgb = ref_vals::RGB_TEST[i];
+        const auto test_rgb = color_cast<T>(ref_vals::RGB_TEST[i]);
         const auto hsl = to_hsl(test_rgb);
-        const auto ref_color = ref_vals::HSL_TEST[i];
+        const auto ref_color = color_cast<T>(ref_vals::HSL_TEST[i]);
 
-        const auto ERROR_TOL = 1e-3;
+        // Rounding errors can cofound to create errors of about 2/255.
 
-        //Test all reference colors Rgb->Hsl.
-        ASSERT_LE(std::abs(hsl.hue() - ref_color.hue()),
-                ERROR_TOL);
-        ASSERT_LE(std::abs(hsl.saturation() - ref_color.saturation()),
-                ERROR_TOL);
-        ASSERT_LE(std::abs(hsl.lightness() - ref_color.lightness()),
-                ERROR_TOL);
+        ASSERT_TRUE(equal_within_error(hsl.hue(), ref_color.hue(), ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(
+                hsl.saturation(), ref_color.saturation(), ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(
+                hsl.lightness(), ref_color.lightness(), ERROR_TOL));
 
-        //Test going from the Hsl result back to the (hopefully original)
-        //Rgb.
         const auto rgb = to_rgb(hsl);
 
-        ASSERT_LE(std::abs(rgb.red() - test_rgb.red()), ERROR_TOL);
-        ASSERT_LE(std::abs(rgb.green() - test_rgb.green()), ERROR_TOL);
-        ASSERT_LE(std::abs(rgb.blue() - test_rgb.blue()), ERROR_TOL);
+        const auto BACK_ERROR_BOUND = T(2 * ERROR_TOL);
+        ASSERT_TRUE(equal_within_error(
+                rgb.red(), test_rgb.red(), BACK_ERROR_BOUND));
+        ASSERT_TRUE(equal_within_error(
+                rgb.green(), test_rgb.green(), BACK_ERROR_BOUND));
+        ASSERT_TRUE(equal_within_error(
+                rgb.blue(), test_rgb.blue(), BACK_ERROR_BOUND));
     }
 }
 
-TEST(RgbConversions, hsl_to_rgb) {
+template <typename T>
+void hsl_to_rgb_test_function(T ERROR_TOL) {
     for(int i = 0; i < ref_vals::HSL_TEST.size(); ++i) {
-        const auto test_hsl = ref_vals::HSL_TEST[i];
+        const auto ref_color = color_cast<T>(ref_vals::RGB_TEST[i]);
+        const auto test_hsl = Hsla<T>(
+                color_cast<T>(ref_vals::HSL_TEST[i]), ref_color.green());
         const auto rgb = to_rgb(test_hsl);
-        const auto ref_color = ref_vals::RGB_TEST[i];
-        const auto ERROR_TOL = 1e-3;
 
         //To rgb...
-        ASSERT_LE(std::abs(rgb.red() - ref_color.red()), ERROR_TOL);
-        ASSERT_LE(std::abs(rgb.green() - ref_color.green()), ERROR_TOL);
-        ASSERT_LE(std::abs(rgb.blue() - ref_color.blue()), ERROR_TOL);
+        ASSERT_TRUE(equal_within_error(
+                rgb.color().red(), ref_color.red(), ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(
+                rgb.color().green(), ref_color.green(), ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(
+                rgb.color().blue(), ref_color.blue(), ERROR_TOL));
+        ASSERT_EQ(rgb.alpha(), ref_color.green());
 
         //...And back
         const auto hsl = to_hsl(rgb);
-        ASSERT_LE(std::abs(hsl.hue() -test_hsl.hue()), ERROR_TOL);
-        ASSERT_LE(std::abs(hsl.saturation() -test_hsl.saturation()), ERROR_TOL);
-        ASSERT_LE(std::abs(hsl.brightness() -test_hsl.brightness()), ERROR_TOL);
+        const auto BACK_ERROR_TOL = T(2 * ERROR_TOL);
+        ASSERT_TRUE(equal_within_error(
+                hsl.color().hue(), test_hsl.color().hue(), BACK_ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(hsl.color().saturation(),
+                test_hsl.color().saturation(),
+                BACK_ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(hsl.color().brightness(),
+                test_hsl.color().brightness(),
+                BACK_ERROR_TOL));
+        ASSERT_EQ(hsl.alpha(), test_hsl.alpha());
     }
+}
+
+TEST(RgbConversions, rgb_to_hsl) {
+    // Test rgb->hsl conversion for several component data types.
+    rgb_to_hsl_test_function<float>(1e-3);
+    rgb_to_hsl_test_function<double>(1e-3);
+    rgb_to_hsl_test_function<uint8_t>(2);
+    rgb_to_hsl_test_function<uint16_t>(65);
+    rgb_to_hsl_test_function<uint32_t>(
+            std::numeric_limits<uint32_t>::max() / 1000);
+}
+
+TEST(RgbConversions, hsl_to_rgb) {
+    hsl_to_rgb_test_function<float>(1e-3);
+    hsl_to_rgb_test_function<double>(1e-3);
+    hsl_to_rgb_test_function<uint8_t>(4);
+    hsl_to_rgb_test_function<uint16_t>(65);
+    hsl_to_rgb_test_function<uint32_t>(
+            std::numeric_limits<uint32_t>::max() / 1000);
 }
