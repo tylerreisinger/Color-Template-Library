@@ -4,6 +4,8 @@
 
 #include "Hsl.h"
 #include "Color.h"
+#include "ConversionRef.h"
+#include "Assertions.h"
 
 using namespace color;
 
@@ -61,4 +63,15 @@ TEST(Hsl, broadcast) {
     auto c = Hsl<uint8_t>::broadcast(135);
 
     ASSERT_EQ(c, Hsl<uint8_t>(135, 135, 135)); 
+}
+
+TEST(Hsl, chroma) {
+    for(int i = 0; i < ref_vals::HSL_TEST.size(); ++i) {
+        const auto chroma = color::chroma(ref_vals::HSL_TEST[i]);
+        const auto test_chroma = ref_vals::CHROMA_TEST[i];
+
+        const float ERROR_TOL = 1e-3;
+
+        ASSERT_TRUE(equal_within_error(chroma, test_chroma, ERROR_TOL));
+    }
 }
