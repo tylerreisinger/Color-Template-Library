@@ -9,6 +9,7 @@
 
 #include <ostream>
 #include <tuple>
+#include <type_traits>
 
 #include "Channel.h"
 
@@ -135,7 +136,8 @@ constexpr inline Hsv<T> operator-(const Hsv<T>& lhs, const Hsv<T>& rhs) {
             lhs.value() - rhs.value());
 }
 
-template <typename T>
+template <typename T,
+        typename = std::enable_if_t<std::is_floating_point<T>::value>>
 constexpr inline T chroma(const Hsv<T>& color) {
     return color.saturation() * color.value();
 }

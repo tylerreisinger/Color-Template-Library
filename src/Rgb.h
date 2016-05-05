@@ -301,7 +301,8 @@ inline std::ostream& operator<<(std::ostream& stream, const Rgb<T>& rgb) {
     return stream;
 }
 
-template <typename T>
+template <typename T,
+        typename = std::enable_if_t<std::is_floating_point<T>::value>>
 constexpr inline T chroma(const Rgb<T>& color) {
     T min, max;
     std::tie(min, max) =
