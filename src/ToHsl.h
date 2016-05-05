@@ -6,6 +6,7 @@
 #include "Hsl.h"
 #include "Rgb.h"
 #include "ConvertUtil.h"
+#include "ColorCast.h"
 
 namespace color {
 
@@ -30,6 +31,12 @@ Hsl<T> to_hsl(const Rgb<T>& from) {
     return Hsl<T>(hue, saturation, lightness);
 }
 
+template <typename T,
+        typename FloatType = float,
+        typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+Hsl<T> to_hsl(const Rgb<T>& from) {
+    return color_cast<T>(to_hsl(color_cast<FloatType>(from)));
+}
 }
 
 #endif
