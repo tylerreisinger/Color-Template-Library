@@ -11,6 +11,7 @@
 #include "Rgb.h"
 
 #include "ConvertUtil.h"
+#include "ColorCast.h"
 
 namespace color {
 
@@ -42,31 +43,7 @@ template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
 Hsv<T> to_hsv(const Rgb<T>& from) {
-    // Used to avoid division by zero by making the number
-    // very slightly greater than zero.
-    const auto EPSILON = FloatType(1e-10);
-    auto c1 = from.red();
-    auto c2 = from.green();
-    auto c3 = from.blue();
-    T min_channel;
-
-    auto scaling_factor = details::order_channels_for_hue<T, FloatType>(
-        c1, c2, c3, min_channel);
-
-    // c1 is guaranteed to be the max
-    FloatType one_over_max = FloatType(1.0) / BoundedChannel<T>::end_point();
-
-    auto chroma = FloatType(c1 - min_channel) * one_over_max;
-    auto channel_diff = FloatType(c2 - c3) * one_over_max;
-
-    FloatType hue = std::abs(scaling_factor +
-            channel_diff / (FloatType(6.0) * chroma + EPSILON));
-
-    auto value = c1;
-    auto saturation = chroma / FloatType(value * one_over_max + EPSILON);
-    return Hsv<T>(PeriodicChannel<T>::from_float_channel(hue).value,
-            BoundedChannel<T>::from_float_channel(saturation).value,
-            value); // * max_channel_val, saturation * max_channel_val, value);
+    return color_cast<T>(to_hsv(color_cast<FloatType>(from)));
 }
 
 template <typename T,
