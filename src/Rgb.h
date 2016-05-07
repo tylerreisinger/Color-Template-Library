@@ -317,11 +317,14 @@ constexpr inline void swap(Rgb<T>& lhs, Rgb<T>& rhs) {
     std::swap(lhs._blue, rhs._blue);
 }
 
-/** Returns a pair of chromacity coordinates.
+/** Returns a pair of chromacity coordinates representing
+ *  two opponent-color coordinates without intensity information.
  *  The first coordinate \f$\alpha$\f represents
  *  the "redness" of the color and the second coordinate
  *  \f$\beta$\f represents the "greenness vs blueness".
  *  Both coordinates are in the range [-1, 1].
+ *
+ *  Internally, this is used to go from Rgb to Hsi.
  *
  *  This function only accepts floating point colors.
  */
