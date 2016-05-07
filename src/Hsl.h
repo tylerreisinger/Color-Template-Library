@@ -8,30 +8,31 @@
 
 namespace color {
 
-template<typename T>
+template <typename T>
 class Hsl;
-template<typename T, template <typename> class Color>
+template <typename T, template <typename> class Color>
 class Alpha;
 
-template<typename T>
+template <typename T>
 constexpr void swap(Hsl<T>& lhs, Hsl<T>& rhs);
 
-///Convenience type for an Hsl color with an alpha channel.
-template<typename T>
+/// Convenience type for an Hsl color with an alpha channel.
+template <typename T>
 using Hsla = Alpha<T, Hsl>;
 
-///Synonym for Hsl, some people prefer to call
+/// Synonym for Hsl, some people prefer to call
 ///'lightness' 'brightness'.
-template<typename T>
+template <typename T>
 using Hsb = Hsl<T>;
-///Synonym for Hsla.
-template<typename T>
+/// Synonym for Hsla.
+template <typename T>
 using Hsba = Hsla<T>;
 
-template<typename T>
-class Hsl: public CylindricalColor<T, Hsl<T>> {
+template <typename T>
+class Hsl : public CylindricalColor<T, Hsl<T>> {
     using Base = CylindricalColor<T, Hsl<T>>;
     friend class CylindricalColor<T, Hsl<T>>;
+
 public:
     static constexpr int num_channels = Base::num_channels;
 
@@ -43,14 +44,14 @@ public:
     ~Hsl() = default;
     Hsl(const Hsl& other) = default;
     Hsl(Hsl&& other) noexcept = default;
-    Hsl& operator =(const Hsl& other) = default;
-    Hsl& operator =(Hsl&& other) noexcept = default;
+    Hsl& operator=(const Hsl& other) = default;
+    Hsl& operator=(Hsl&& other) noexcept = default;
 
-    constexpr Hsl(): Base() {}
+    constexpr Hsl() : Base() {}
     constexpr Hsl(T hue, T saturation, T lightness)
         : Base(hue, saturation, lightness) {}
 
-    template<template <typename> class Angle, typename U>
+    template <template <typename> class Angle, typename U>
     constexpr Hsl(Angle<U> hue, T saturation, T lightness)
         : Base(hue, saturation, lightness) {}
 
@@ -63,24 +64,26 @@ public:
 
     constexpr BoundedChannel<T>& lightness_channel() { return _c3; }
     constexpr BoundedChannel<T> lightness_channel() const { return _c3; }
-    constexpr BoundedChannel<T>& brightness_channel() { return lightness_channel; }
-    constexpr BoundedChannel<T> brightness_channel() const { return lightness_channel; }
+    constexpr BoundedChannel<T>& brightness_channel() {
+        return lightness_channel;
+    }
+    constexpr BoundedChannel<T> brightness_channel() const {
+        return lightness_channel;
+    }
 
     constexpr T& lightness() { return _c3.value; }
     constexpr T lightness() const { return _c3.value; }
-    ///Synonym for lightness().
+    /// Synonym for lightness().
     constexpr T& brightness() { return lightness(); }
-    ///Synonym for lightness().
+    /// Synonym for lightness().
     constexpr T brightness() const { return lightness(); }
 
     constexpr Hsl<T>& set_lightness(T value) {
         _c3.value = value;
         return *this;
     }
-    ///Synonym for set_lightness(T).
-    constexpr Hsl<T>& set_brightness(T value) {
-        return set_lightness(value);
-    }
+    /// Synonym for set_lightness(T).
+    constexpr Hsl<T>& set_brightness(T value) { return set_lightness(value); }
 
     friend constexpr void swap<T>(Hsl<T>& lhs, Hsl<T>& rhs);
 
@@ -92,26 +95,26 @@ protected:
 
 template <typename T>
 inline std::ostream& operator<<(std::ostream& stream, const Hsl<T>& rhs) {
-    stream << "HSL(" << rhs.hue_channel() << ", " << rhs.saturation_channel() << ", "
-           << rhs.lightness_channel() << ")";
+    stream << "HSL(" << rhs.hue_channel() << ", " << rhs.saturation_channel()
+           << ", " << rhs.lightness_channel() << ")";
     return stream;
 }
 
-template<typename T>
+template <typename T>
 constexpr inline Hsl<T> operator+(const Hsl<T>& lhs, const Hsl<T>& rhs) {
     return Hsl<T>(lhs.hue() + rhs.hue(),
             lhs.saturation() + rhs.saturation(),
             lhs.lightness() + rhs.lightness());
 }
 
-template<typename T>
+template <typename T>
 constexpr inline Hsl<T> operator-(const Hsl<T>& lhs, const Hsl<T>& rhs) {
     return Hsl<T>(lhs.hue() - rhs.hue(),
             lhs.saturation() - rhs.saturation(),
             lhs.lightness() - rhs.lightness());
 }
 
-template<typename T>
+template <typename T>
 constexpr inline void swap(Hsl<T>& lhs, Hsl<T>& rhs) {
     swap(lhs._hue, rhs._hue);
     swap(lhs._saturation, rhs._saturation);
@@ -121,10 +124,8 @@ constexpr inline void swap(Hsl<T>& lhs, Hsl<T>& rhs) {
 template <typename T,
         typename = std::enable_if_t<std::is_floating_point<T>::value>>
 constexpr inline T chroma(const Hsl<T>& color) {
-    return (1.0 - std::abs(2.0*color.lightness() - 1.0))
-        * color.saturation();
+    return (1.0 - std::abs(2.0 * color.lightness() - 1.0)) * color.saturation();
 }
-
 }
 
 #endif
