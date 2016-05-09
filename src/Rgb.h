@@ -295,7 +295,7 @@ inline constexpr Rgb<T> operator-(const Rgb<T>& lhs, const Rgb<T>& rhs) {
 
 template <typename T>
 inline std::ostream& operator<<(std::ostream& stream, const Rgb<T>& rgb) {
-    stream << "RGB(" << rgb._red << ", " << rgb._green << ", " << rgb._blue
+    stream << "Rgb(" << rgb._red << ", " << rgb._green << ", " << rgb._blue
            << ")";
 
     return stream;

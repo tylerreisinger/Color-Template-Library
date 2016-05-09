@@ -125,7 +125,7 @@ protected:
 
 template <typename T>
 inline std::ostream& operator<<(std::ostream& stream, const Hsi<T>& rhs) {
-    stream << "HSI(" << rhs.hue_channel() << ", " << rhs.saturation_channel()
+    stream << "Hsi(" << rhs.hue_channel() << ", " << rhs.saturation_channel()
            << ", " << rhs.intensity_channel() << ")";
     return stream;
 }

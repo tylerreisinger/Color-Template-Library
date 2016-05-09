@@ -117,7 +117,7 @@ private:
  */
 template <typename T>
 inline std::ostream& operator<<(std::ostream& stream, const Hsv<T>& rhs) {
-    stream << "HSV(" << rhs._hue << ", " << rhs._saturation << ", "
+    stream << "Hsv(" << rhs._hue << ", " << rhs._saturation << ", "
            << rhs.value_channel() << ")";
     return stream;
 }
