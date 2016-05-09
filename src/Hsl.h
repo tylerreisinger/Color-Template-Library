@@ -123,7 +123,7 @@ constexpr inline void swap(Hsl<T>& lhs, Hsl<T>& rhs) {
 
 template <typename T,
         typename = std::enable_if_t<std::is_floating_point<T>::value>>
-constexpr inline T chroma(const Hsl<T>& color) {
+inline T chroma(const Hsl<T>& color) {
     return (1.0 - std::abs(2.0 * color.lightness() - 1.0)) * color.saturation();
 }
 }
