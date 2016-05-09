@@ -6,6 +6,7 @@
 #include "Rgb.h"
 #include "Hsv.h"
 #include "Hsl.h"
+#include "Hsi.h"
 
 using namespace color;
 
@@ -80,6 +81,27 @@ static constexpr std::array<Hsl<float>, 19> HSL_TEST = {
 	Hsl<float>(0.6680555555555555, 0.29, 0.607)
 };
 
+static constexpr std::array<Hsi<float>, 19> HSI_TEST = {
+        Hsi<float>(0.0, 0.0, 1.0),
+        Hsi<float>(0.0, 0.0, 0.5),
+        Hsi<float>(0.0, 0.0, 0.0),
+        Hsi<float>(0.0, 1.0, 0.333),
+        Hsi<float>(0.16666666666666666, 1.0, 0.5),
+        Hsi<float>(0.3333333333333333, 1.0, 0.167),
+        Hsi<float>(0.5, 0.4, 0.833),
+        Hsi<float>(0.6666666666666666, 0.25, 0.667),
+        Hsi<float>(0.8333333333333334, 0.571, 0.583),
+        Hsi<float>(0.17083333333333334, 0.699, 0.471),
+        Hsi<float>(0.6944444444444444, 0.756, 0.426),
+        Hsi<float>(0.3716666666666667, 0.667, 0.349),
+        Hsi<float>(0.14027777777777778, 0.911, 0.593),
+        Hsi<float>(0.7911111111111111, 0.686, 0.596),
+        Hsi<float>(0.03666666666666667, 0.446, 0.57),
+        Hsi<float>(0.15944444444444444, 0.363, 0.835),
+        Hsi<float>(0.4538888888888889, 0.8, 0.495),
+        Hsi<float>(0.6869444444444445, 0.533, 0.319),
+        Hsi<float>(0.6677777777777778, 0.135, 0.57)};
+
 static constexpr std::array<float, 19> CHROMA_TEST = {
 	0.0,
 	0.0,
@@ -145,7 +167,6 @@ static constexpr std::array<float, 19> CIRCULAR_HUE_TEST = {
 	0.6869444444444445,
 	0.6677777777777778
 };
-
 }
 
 #endif

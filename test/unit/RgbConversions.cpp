@@ -3,6 +3,7 @@
 #include "ToHsv.h"
 #include "ToRgb.h"
 #include "ToHsl.h"
+#include "ToHsi.h"
 #include "ColorCast.h"
 #include "Hsv.h"
 #include "Hsl.h"
@@ -258,4 +259,49 @@ TEST(RgbConversions, hsl_to_rgb) {
     hsl_to_rgb_test_function<uint16_t>(65);
     hsl_to_rgb_test_function<uint32_t>(
             std::numeric_limits<uint32_t>::max() / 1000);
+}
+
+
+template <typename T>
+void rgb_to_hsi_test_function(T ERROR_TOL) {
+    for(int i = 0; i < ref_vals::RGB_TEST.size(); ++i) {
+        const auto test_rgb = color_cast<T>(ref_vals::RGB_TEST[i]);
+        const auto hsi = to_hsi(test_rgb);
+        const auto ref_color = color_cast<T>(ref_vals::HSI_TEST[i]);
+
+        ASSERT_TRUE(equal_within_error(hsi.hue(), ref_color.hue(), ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(
+                hsi.saturation(), ref_color.saturation(), ERROR_TOL));
+        ASSERT_TRUE(equal_within_error(
+                hsi.intensity(), ref_color.intensity(), ERROR_TOL));
+
+        const auto rgb = to_rgb(hsi);
+
+        const auto BACK_ERROR_BOUND = T(2 * ERROR_TOL);
+        ASSERT_TRUE(equal_within_error(
+                rgb.red(), test_rgb.red(), BACK_ERROR_BOUND));
+        ASSERT_TRUE(equal_within_error(
+                rgb.green(), test_rgb.green(), BACK_ERROR_BOUND));
+        ASSERT_TRUE(equal_within_error(
+                rgb.blue(), test_rgb.blue(), BACK_ERROR_BOUND));
+    }
+}
+
+
+TEST(RgbConversions, rgb_to_hsi) {
+    rgb_to_hsi_test_function<float>(1e-3);
+    rgb_to_hsi_test_function<double>(1e-3);
+}
+
+TEST(RgbConversions, hsi_to_rgb) {
+    {
+        auto c1 = Hsi<float>(0.0, 1.0, 1.0);
+        auto c2 = to_rgb(c1, HsiOutOfGamutMode::Preserve);
+        auto c3 = to_rgb(c1, HsiOutOfGamutMode::Clip);
+
+        ASSERT_PRED_FORMAT3(
+                assert_colors_near, c2, Rgb<float>(3.0, 0.0, 0.0), 1e-5);
+        ASSERT_PRED_FORMAT3(
+                assert_colors_near, c3, Rgb<float>(1.0, 0.0, 0.0), 1e-5);
+    }
 }

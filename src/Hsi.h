@@ -63,6 +63,58 @@ public:
         return *this;
     }
 
+    /** Compute the maximum intensity value that will keep this color in
+     *  gamut. Giving a color with the same hue and saturation as this
+     *  an intensity greater than the returned value will make the
+     *  color no longer correspond to a valid in-range RGB color.
+     *
+     *  The returned value is computed by projecting the color onto
+     *  the surface that divides the in-gamut region to the out-of-gamut
+     *  region. An approximation to hue is used, which makes this function
+     *  considerably faster than converting and testing, but at the expense
+     *  of some accuracy.
+     *
+     *  The maximum error tolerance is +/- 0.015 of the RGB result, so a
+     *  color with one RGB channel value of at most 1.015 could potentially
+     *  appear in-gamut with regards to this function.
+     */
+    constexpr T max_in_gamut_intensity() const {
+        const T scaled_hue = _hue.value * 3.0;
+        const int seg = static_cast<int>(scaled_hue);
+        const T hue_param = T(1.0 / 3.0) * (scaled_hue - seg * T(1.0));
+
+        // hue_alpha is the linear interpolation factor along
+        // the changing RGB coordinate in the hue function.
+        T hue_alpha = 0.0;
+        if(hue_param <= T(1.0 / 6.0)) {
+            hue_alpha = T(6.0) * hue_param;
+        } else {
+            hue_alpha = T(6.0) * (T(1.0 / 3.0) - hue_param);
+        }
+
+        const auto s = _saturation.value;
+
+        // We are looking for a maximum intensity, so
+        // assume the highest channel is always 1.0.
+        const T max_channel = 1.0;
+
+        const T min_channel =
+                ((hue_alpha + T(1.0)) * max_channel * (s - T(1.0))) /
+                (hue_alpha * (s - T(1.0)) - 2 * s - T(1.0));
+
+        const T max_intensity = T(1.0 / 3.0) *
+                (max_channel + min_channel + hue_alpha * max_channel +
+                                        (T(1.0) - hue_alpha) * min_channel);
+
+        return max_intensity;
+    }
+
+    /// Compare max_in_gamut_intensity() to intensity(), returning true if
+    /// intensity() is smaller.
+    constexpr bool is_in_gamut() const {
+        return intensity() <= max_in_gamut_intensity();
+    }
+
     friend constexpr void swap<T>(Hsi<T>& lhs, Hsi<T>& rhs);
 
 protected:
