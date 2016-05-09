@@ -68,8 +68,6 @@ TEST(Hsi, broadcast) {
 }
 
 TEST(Hsi, is_in_gamut) {
-    auto c = Hsi<float>(1.0 / 6.0, 0.5, 0.0);
-
     ASSERT_TRUE(Hsi<float>(0.0, 1.0, 0.0).is_in_gamut());
     ASSERT_FALSE(Hsi<float>(0.0, 1.0, 0.4).is_in_gamut());
     ASSERT_TRUE(Hsi<float>(1.0 / 6.0, 1.0, 0.4).is_in_gamut());

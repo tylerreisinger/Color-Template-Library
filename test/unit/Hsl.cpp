@@ -34,16 +34,14 @@ TEST(Hsl, constructor) {
         auto c2 = Hsl<uint8_t>(data.data());
         auto c3 = Hsl<uint8_t>(data[0], data[1], data[2]);
 
-        ASSERT_EQ(c1, c2);
-        ASSERT_EQ(c1, c3);
+        ASSERT_COLORS_EQ(c1, c2);
+        ASSERT_COLORS_EQ(c1, c3);
     }
     //Test tuple constructor
     {
         auto c = Hsl<float>(std::make_tuple(0.3, 0.4, 0.6));
 
-        ASSERT_FLOAT_EQ(c.hue(), 0.3);
-        ASSERT_FLOAT_EQ(c.saturation(), 0.4);
-        ASSERT_FLOAT_EQ(c.lightness(), 0.6);
+        ASSERT_COLORS_NEAR(c, Hsl<float>(0.3, 0.4, 0.6), FLOAT_TOL);
     }
 }
 
@@ -55,14 +53,14 @@ TEST(Hsl, swap) {
 
     swap(c1, c2);
 
-    ASSERT_TRUE(float_eq(c1, c4));
-    ASSERT_TRUE(float_eq(c2, c3));
+    ASSERT_COLORS_NEAR(c1, c4, FLOAT_TOL);
+    ASSERT_COLORS_NEAR(c2, c3, FLOAT_TOL);
 }
 
 TEST(Hsl, broadcast) {
     auto c = Hsl<uint8_t>::broadcast(135);
 
-    ASSERT_EQ(c, Hsl<uint8_t>(135, 135, 135)); 
+    ASSERT_COLORS_EQ(c, Hsl<uint8_t>(135, 135, 135));
 }
 
 TEST(Hsl, chroma) {

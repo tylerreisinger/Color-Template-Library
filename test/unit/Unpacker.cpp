@@ -1,9 +1,10 @@
 #include "gtest/gtest.h"
 
-#include "Rgb.h"
 #include "Alpha.h"
+#include "Assertions.h"
 #include "FlatColorUnpacker.h"
 #include "FlatColorPacker.h"
+#include "Rgb.h"
 
 using namespace color;
 
@@ -15,7 +16,7 @@ TEST(Unpack, unpack_single) {
         Rgb<uint8_t> out_color;
         unpacker.unpack_single(in_data.begin(), out_color);
 
-        ASSERT_EQ(out_color, Rgb<uint8_t>(50, 150, 250));
+        ASSERT_COLORS_EQ(out_color, Rgb<uint8_t>(50, 150, 250));
     }
     // Test unpacking in reverse order
     {
@@ -24,7 +25,7 @@ TEST(Unpack, unpack_single) {
         Rgb<uint8_t> out_color;
         unpacker.unpack_single(in_data.begin(), out_color);
 
-        ASSERT_EQ(out_color, Rgb<uint8_t>(250, 150, 50));
+        ASSERT_COLORS_EQ(out_color, Rgb<uint8_t>(250, 150, 50));
     }
     // Test unpacking XRGB
     {
@@ -33,7 +34,7 @@ TEST(Unpack, unpack_single) {
         Rgb<uint8_t> out_color;
         unpacker.unpack_single(in_data.begin(), out_color);
 
-        ASSERT_EQ(out_color, Rgb<uint8_t>(100, 200, 50));
+        ASSERT_COLORS_EQ(out_color, Rgb<uint8_t>(100, 200, 50));
         ASSERT_EQ(unpacker.packed_size(), sizeof(uint8_t) * 4);
     }
 }
