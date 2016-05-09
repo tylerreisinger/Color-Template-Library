@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <cmath>
 #include <sstream>
+#include <cstdint>
 
 #include "Color.h"
 
@@ -44,20 +45,36 @@ inline ::testing::AssertionResult equal_within_error(
     }
 }
 
-template <typename T, typename Color>
+// We have to be careful comparing differences in unsigned types.
+template <typename T,
+        typename std::enable_if_t<std::is_unsigned<T>::value, int> = 0>
+inline T compute_difference(T lhs, T rhs) {
+    return T(std::abs(std::intmax_t(lhs) - std::intmax_t(rhs)));
+}
+
+template <typename T,
+        typename std::enable_if_t<!std::is_unsigned<T>::value, int> = 0>
+inline T compute_difference(T lhs, T rhs) {
+    return std::abs(lhs - rhs);
+}
+
+
+template <typename Color>
 inline ::testing::AssertionResult assert_colors_near(const char* lhs_expr,
         const char* rhs_expr,
         const char* tol_expr,
         const Color& lhs_color,
         const Color& rhs_color,
-        T error_tol) {
+        typename Color::ElementType error_tol) {
     bool is_failure = false;
-    T max_error = 0.0;
+    typename Color::ElementType max_error = 0.0;
 
     color::for_each_element(lhs_color,
             [&is_failure, &rhs_color, &max_error, error_tol](
                                     auto elem, std::size_t idx) {
-                auto diff = std::abs(elem - T(rhs_color.as_array()[idx]));
+
+                typename Color::ElementType diff =
+                        compute_difference(elem, rhs_color.as_array()[idx]);
                 if(diff > error_tol) {
                     is_failure = true;
                     max_error = std::max(diff, max_error);
@@ -96,6 +113,8 @@ inline ::testing::AssertionResult assert_colors_equal(const char* lhs_expr,
         return ::testing::AssertionSuccess();
     }
 }
+
+static constexpr float FLOAT_TOL = 1e-5;
 
 #define ASSERT_COLORS_EQ(c1, c2)                                               \
     ASSERT_PRED_FORMAT2(assert_colors_equal, c1, c2)
