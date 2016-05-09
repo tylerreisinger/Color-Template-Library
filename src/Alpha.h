@@ -230,8 +230,7 @@ Alpha<T, Color> with_alpha(Color<T> color, T alpha) {
 
 template <typename T, template <typename> class Color>
 std::ostream& operator<<(std::ostream& stream, const Alpha<T, Color>& color) {
-    stream << "Alpha(" << color.color() << ", " << +color.alpha() << ")"
-           << std::endl;
+    stream << "Alpha(" << color.color() << ", " << +color.alpha() << ")";
     return stream;
 }
 
