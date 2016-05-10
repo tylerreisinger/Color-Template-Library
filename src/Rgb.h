@@ -26,10 +26,6 @@ class Rgb;
  */
 template <typename T>
 std::ostream& operator<<(std::ostream& stream, const Rgb<T>& rgb);
-template <typename T>
-constexpr Rgb<T> operator+(const Rgb<T>& lhs, const Rgb<T>& rhs);
-template <typename T>
-constexpr Rgb<T> operator-(const Rgb<T>& lhs, const Rgb<T>& rhs);
 
 template <typename T>
 constexpr void swap(Rgb<T>& lhs, Rgb<T>& rhs);
@@ -268,9 +264,6 @@ public:
 
     friend std::ostream& operator<<<T>(std::ostream& stream, const Rgb<T>& rgb);
 
-    friend Rgb<T> operator+<T>(const Rgb<T>& lhs, const Rgb<T>& rhs);
-    friend Rgb<T> operator-<T>(const Rgb<T>& lhs, const Rgb<T>& rhs);
-
     friend void swap<T>(Rgb<T>& lhs, Rgb<T>& rhs);
 
 protected:
@@ -278,20 +271,6 @@ protected:
     BoundedChannel<T> _green;
     BoundedChannel<T> _blue;
 };
-
-template <typename T>
-inline constexpr Rgb<T> operator+(const Rgb<T>& lhs, const Rgb<T>& rhs) {
-    return Rgb<T>(lhs._red.value + rhs._red.value,
-            lhs._green.value + rhs._green.value,
-            lhs._blue.value + rhs._blue.value);
-}
-
-template <typename T>
-inline constexpr Rgb<T> operator-(const Rgb<T>& lhs, const Rgb<T>& rhs) {
-    return Rgb<T>(lhs._red.value - rhs._red.value,
-            lhs._green.value - rhs._green.value,
-            lhs._blue.value - rhs._blue.value);
-}
 
 template <typename T>
 inline std::ostream& operator<<(std::ostream& stream, const Rgb<T>& rgb) {

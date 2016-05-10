@@ -101,20 +101,6 @@ inline std::ostream& operator<<(std::ostream& stream, const Hsl<T>& rhs) {
 }
 
 template <typename T>
-constexpr inline Hsl<T> operator+(const Hsl<T>& lhs, const Hsl<T>& rhs) {
-    return Hsl<T>(lhs.hue() + rhs.hue(),
-            lhs.saturation() + rhs.saturation(),
-            lhs.lightness() + rhs.lightness());
-}
-
-template <typename T>
-constexpr inline Hsl<T> operator-(const Hsl<T>& lhs, const Hsl<T>& rhs) {
-    return Hsl<T>(lhs.hue() - rhs.hue(),
-            lhs.saturation() - rhs.saturation(),
-            lhs.lightness() - rhs.lightness());
-}
-
-template <typename T>
 constexpr inline void swap(Hsl<T>& lhs, Hsl<T>& rhs) {
     swap(lhs._hue, rhs._hue);
     swap(lhs._saturation, rhs._saturation);

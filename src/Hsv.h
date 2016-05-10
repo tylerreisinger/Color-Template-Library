@@ -122,20 +122,6 @@ inline std::ostream& operator<<(std::ostream& stream, const Hsv<T>& rhs) {
     return stream;
 }
 
-template <typename T>
-constexpr inline Hsv<T> operator+(const Hsv<T>& lhs, const Hsv<T>& rhs) {
-    return Hsv<T>(lhs.hue() + rhs.hue(),
-            lhs.saturation() + rhs.saturation(),
-            lhs.value() + rhs.value());
-}
-
-template <typename T>
-constexpr inline Hsv<T> operator-(const Hsv<T>& lhs, const Hsv<T>& rhs) {
-    return Hsv<T>(lhs.hue() - rhs.hue(),
-            lhs.saturation() - rhs.saturation(),
-            lhs.value() - rhs.value());
-}
-
 template <typename T,
         typename = std::enable_if_t<std::is_floating_point<T>::value>>
 constexpr inline T chroma(const Hsv<T>& color) {

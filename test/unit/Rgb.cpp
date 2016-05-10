@@ -139,13 +139,6 @@ TEST(Rgb, scale) {
     ASSERT_COLORS_EQ(c1, Rgb<uint8_t>(50, 100, 25));
 }
 
-TEST(Rgb, arithmetic) {
-    Rgb<uint8_t> c1(25, 25, 50);
-    Rgb<uint8_t> c2(125, 100, 150);
-    ASSERT_COLORS_EQ(c1 + c2, Rgb<uint8_t>(150, 125, 200));
-    ASSERT_COLORS_EQ(c2 - c1, Rgb<uint8_t>(100, 75, 100));
-}
-
 TEST(Rgb, get) {
     Rgb<uint8_t> c1(5, 10, 15);
     ASSERT_EQ(get<0>(c1), 5);
