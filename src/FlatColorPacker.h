@@ -15,69 +15,6 @@
 
 namespace color {
 
-namespace details {
-
-template <typename Color,
-        typename OutIterator,
-        int idx,
-        typename std::enable_if_t<(idx == -1), int> = 0>
-void pack_set_elem_impl(const Color& in, OutIterator out) {
-    *out = Color::ElementType(0);
-}
-
-template <typename Color,
-        typename OutIterator,
-        int idx,
-        typename std::enable_if_t<(idx != -1), int> = 0>
-void pack_set_elem_impl(const Color& in, OutIterator out) {
-    *out = std::get<idx>(in.as_tuple());
-}
-
-template <typename Color, typename OutIterator, std::size_t N>
-struct static_pack_single_impl {
-    static void pack_single(const Color& in, OutIterator& out) {
-        static_pack_single_impl<Color, OutIterator, N - 1>::pack_single(
-                in, out);
-        pack_set_elem_impl(in, out);
-        ++out;
-    }
-};
-
-template <typename Color, typename OutIterator>
-struct static_pack_single_impl<Color, OutIterator, 0> {
-    static void pack_single(const Color& in, OutIterator& out) {
-        pack_set_elem_impl(in, out);
-        ++out;
-    }
-};
-
-
-template <typename Color, std::size_t N>
-class StaticFlatColorPacker {
-public:
-    using ElementType = typename Color::ElementType;
-
-    StaticFlatColorPacker(std::array<int, N> pack_order) {
-        set_pack_order(std::move(pack_order));
-    }
-
-    StaticFlatColorPacker& set_pack_order(std::vector<int> value) {
-        // TODO: handle the case of out-of-range indices.
-        m_pack_format = std::move(value);
-        return *this;
-    }
-
-    template <typename Iterator>
-    Iterator pack_single(const Color& in, Iterator out) const {
-        static_pack_single_impl<Color, Iterator, N - 1>::pack_single(in, out);
-        return out;
-    }
-
-private:
-    std::array<int, N> m_pack_format;
-};
-}
-
 /** Packer class for packing color components into an array without conversion.
  *  FlatColorPacker supports reordering components, skipping elements and
  *  replicating component values in order to adapt to many pixel formats.
