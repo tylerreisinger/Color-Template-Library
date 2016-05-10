@@ -16,7 +16,7 @@ namespace color {
 
 template <typename T,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Rgb<T> to_rgb(const Hsv<T>& from) {
+inline Rgb<T> to_rgb(const Hsv<T>& from) {
     Rgb<T> out;
 
     T hue_frac;
@@ -71,26 +71,26 @@ Rgb<T> to_rgb(const Hsv<T>& from) {
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Rgb<T> to_rgb(const Hsv<T>& from) {
+inline Rgb<T> to_rgb(const Hsv<T>& from) {
     return color_cast<T>(to_rgb(color_cast<FloatType>(from)));
 }
 
 template <typename T,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Rgba<T> to_rgb(const Hsva<T>& from) {
+inline Rgba<T> to_rgb(const Hsva<T>& from) {
     return Rgba<T>(to_rgb(from.color()), from.alpha());
 }
 
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Rgba<T> to_rgb(const Hsva<T>& from) {
+inline Rgba<T> to_rgb(const Hsva<T>& from) {
     return Rgba<T>(to_rgb<T, FloatType>(from.color()), from.alpha());
 }
 
 template <typename T,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Rgb<T> to_rgb(const Hsl<T>& from) {
+inline Rgb<T> to_rgb(const Hsl<T>& from) {
     Rgb<T> out;
 
     T hue_frac;
@@ -145,20 +145,20 @@ Rgb<T> to_rgb(const Hsl<T>& from) {
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Rgb<T> to_rgb(const Hsl<T>& from) {
+inline Rgb<T> to_rgb(const Hsl<T>& from) {
     return color_cast<T>(to_rgb(color_cast<FloatType>(from)));
 }
 
 template <typename T,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Rgba<T> to_rgb(const Hsla<T>& from) {
+inline Rgba<T> to_rgb(const Hsla<T>& from) {
     return Rgba<T>(to_rgb(from.color()), from.alpha());
 }
 
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Rgba<T> to_rgb(const Hsla<T>& from) {
+inline Rgba<T> to_rgb(const Hsla<T>& from) {
     return Rgba<T>(to_rgb<T, FloatType>(from.color()), from.alpha());
 }
 
@@ -178,7 +178,7 @@ inline void clip_oog_mode(const Hsi<T>& from, T& c1, T& c2, T& c3) {
 template <typename T,
         typename FnType,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Rgb<T> to_rgb(const Hsi<T>& from, const FnType& gamut_fn) {
+inline Rgb<T> to_rgb(const Hsi<T>& from, const FnType& gamut_fn) {
     T hue_angle = from.hue() * Radians<T>::period_length();
     hue_angle = std::fmod(hue_angle, T(2.0 * PI<T> / 3.0));
 
@@ -201,7 +201,7 @@ Rgb<T> to_rgb(const Hsi<T>& from, const FnType& gamut_fn) {
 }
 
 template <typename T>
-Rgb<T> to_rgb(const Hsi<T>& from,
+inline Rgb<T> to_rgb(const Hsi<T>& from,
         HsiOutOfGamutMode gamut_fix_mode = HsiOutOfGamutMode::Clip) {
     switch(gamut_fix_mode) {
     case HsiOutOfGamutMode::Clip: {

@@ -8,14 +8,14 @@
 #ifndef COLOR_CHANNEL_H_
 #define COLOR_CHANNEL_H_
 
+#include <cmath>
 #include <cstdint>
+#include <limits>
 #include <ostream>
 #include <type_traits>
-#include <limits>
-#include <cmath>
 
-#include "Tuple_Util.h"
 #include "Angle.h"
+#include "Tuple_Util.h"
 
 namespace color {
 
@@ -40,14 +40,14 @@ public:
 
     ~ChannelBase() = default;
 
-    ChannelBase(const ChannelBase& other) = default;
-    ChannelBase(ChannelBase&& other) noexcept = default;
-    ChannelBase& operator=(const ChannelBase& other) = default;
-    ChannelBase& operator=(ChannelBase&& other) noexcept = default;
+    constexpr ChannelBase(const ChannelBase& other) = default;
+    constexpr ChannelBase(ChannelBase&& other) noexcept = default;
+    constexpr ChannelBase& operator=(const ChannelBase& other) = default;
+    constexpr ChannelBase& operator=(ChannelBase&& other) noexcept = default;
 
-    ChannelBase<T>& operator=(T value) { this->value = value; }
+    constexpr ChannelBase<T>& operator=(T value) { this->value = value; }
 
-    T clamp(T min, T max) const {
+    constexpr T clamp(T min, T max) const {
         if(value < min) {
             return min;
         } else if(value > max) {
@@ -67,7 +67,7 @@ namespace details {
 template <typename T,
         typename Pos,
         typename = typename std::enable_if_t<std::is_floating_point<Pos>::value>>
-inline T lerp_flat(T start, T end, Pos pos) {
+inline constexpr T lerp_flat(T start, T end, Pos pos) {
     auto inv_pos = (Pos(1.0) - pos);
 
     return T(inv_pos * start + pos * end);
@@ -77,7 +77,7 @@ template <template <typename> class ChannelType,
         typename T,
         typename Pos,
         typename = typename std::enable_if_t<std::is_floating_point<Pos>::value>>
-T lerp_cyclic_int(T start, T end, Pos pos) {
+inline constexpr T lerp_cyclic_int(T start, T end, Pos pos) {
     auto forward_len = std::abs(end - start);
     auto center = ChannelType<T>::center_value();
 
@@ -123,7 +123,7 @@ T lerp_cyclic_int(T start, T end, Pos pos) {
 template <typename T,
         typename Pos,
         typename = typename std::enable_if_t<std::is_floating_point<Pos>::value>>
-T lerp_cyclic(T start, T end, Pos pos) {
+inline T lerp_cyclic(T start, T end, Pos pos) {
     using ChannelType = PeriodicChannel<T>;
     auto forward_len = std::abs(end - start);
     auto center = ChannelType::center_value();
@@ -157,79 +157,79 @@ inline std::ostream& operator<<(std::ostream& stream, ChannelBase<T> rhs) {
 
 // We always want char channels to print as integers.
 template <>
-inline std::ostream& operator<<(
+inline std::ostream& operator<<<uint8_t>(
         std::ostream& stream, ChannelBase<uint8_t> rhs) {
     stream << static_cast<int>(rhs.value);
     return stream;
 }
 
 template <typename T>
-bool operator==(T lhs, ChannelBase<T> rhs) {
+inline constexpr bool operator==(T lhs, ChannelBase<T> rhs) {
     return lhs == rhs.value;
 }
 
 template <typename T>
-bool operator==(ChannelBase<T> lhs, T rhs) {
+inline constexpr bool operator==(ChannelBase<T> lhs, T rhs) {
     return lhs.value == rhs;
 }
 
 template <typename T>
-bool operator==(ChannelBase<T> lhs, ChannelBase<T> rhs) {
+inline constexpr bool operator==(ChannelBase<T> lhs, ChannelBase<T> rhs) {
     return lhs.value == rhs.value;
 }
 
 template <typename T>
-bool operator!=(T lhs, ChannelBase<T> rhs) {
+inline constexpr bool operator!=(T lhs, ChannelBase<T> rhs) {
     return lhs != rhs.value;
 }
 
 template <typename T>
-bool operator!=(ChannelBase<T> lhs, T rhs) {
+inline constexpr bool operator!=(ChannelBase<T> lhs, T rhs) {
     return lhs.value != rhs;
 }
 
 template <typename T>
-bool operator!=(ChannelBase<T> lhs, ChannelBase<T> rhs) {
+inline constexpr bool operator!=(ChannelBase<T> lhs, ChannelBase<T> rhs) {
     return lhs.value != rhs.value;
 }
 
 template <typename T>
-bool operator>(ChannelBase<T> lhs, T rhs) {
+inline constexpr bool operator>(ChannelBase<T> lhs, T rhs) {
     return lhs.value > rhs;
 }
 
 template <typename T>
-bool operator<(ChannelBase<T> lhs, T rhs) {
+inline constexpr bool operator<(ChannelBase<T> lhs, T rhs) {
     return lhs.value < rhs;
 }
 
 template <typename T>
-bool operator>=(ChannelBase<T> lhs, T rhs) {
+inline constexpr bool operator>=(ChannelBase<T> lhs, T rhs) {
     return lhs.value >= rhs;
 }
 
 template <typename T>
-bool operator<=(ChannelBase<T> lhs, T rhs) {
+inline constexpr bool operator<=(ChannelBase<T> lhs, T rhs) {
     return lhs.value <= rhs;
 }
 
 template <typename T>
-bool operator>(T lhs, ChannelBase<T> rhs) {
+inline constexpr bool operator>(T lhs, ChannelBase<T> rhs) {
     return lhs > rhs.value;
 }
 
 template <typename T>
-bool operator<(T lhs, ChannelBase<T> rhs) {
+inline constexpr bool operator<(T lhs, ChannelBase<T> rhs) {
     return lhs < rhs.value;
 }
 
 template <typename T>
-bool operator>=(T lhs, ChannelBase<T> rhs) {
+inline constexpr bool operator>=(T lhs, ChannelBase<T> rhs) {
     return lhs >= rhs.value;
 }
 
 template <typename T>
-bool operator<=(T lhs, ChannelBase<T> rhs) {
+inline constexpr bool operator<=(T lhs, ChannelBase<T> rhs) {
     return lhs <= rhs.value;
 }
 
@@ -350,7 +350,7 @@ public:
         }
         return out;
     }
-    constexpr T normalize() const {
+    T normalize() const {
         if(value == 0.0) {
             return value;
         } else {
@@ -493,12 +493,12 @@ public:
 };
 
 template <typename T>
-inline void swap(BoundedChannel<T>& lhs, BoundedChannel<T>& rhs) {
+inline constexpr void swap(BoundedChannel<T>& lhs, BoundedChannel<T>& rhs) {
     std::swap(lhs.value, rhs.value);
 }
 
 template <typename T>
-inline void swap(PeriodicChannel<T>& lhs, PeriodicChannel<T>& rhs) {
+inline constexpr void swap(PeriodicChannel<T>& lhs, PeriodicChannel<T>& rhs) {
     std::swap(lhs.value, rhs.value);
 }
 }

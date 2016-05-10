@@ -57,10 +57,10 @@ public:
 
     ~Hsv() = default;
 
-    Hsv(const Hsv& other) = default;
-    Hsv(Hsv&& other) noexcept = default;
-    Hsv& operator=(const Hsv& other) = default;
-    Hsv& operator=(Hsv&& other) noexcept = default;
+    constexpr Hsv(const Hsv& other) = default;
+    constexpr Hsv(Hsv&& other) noexcept = default;
+    constexpr Hsv& operator=(const Hsv& other) = default;
+    constexpr Hsv& operator=(Hsv&& other) noexcept = default;
 
     /// Construct an Hsv instance with all components set to 0.
     constexpr Hsv(): Base() {}

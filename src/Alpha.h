@@ -90,10 +90,10 @@ public:
 
     ~Alpha() = default;
 
-    Alpha(const Alpha& other) = default;
-    Alpha(Alpha&& other) noexcept = default;
-    Alpha& operator=(const Alpha& other) = default;
-    Alpha& operator=(Alpha&& other) noexcept = default;
+    constexpr Alpha(const Alpha& other) = default;
+    constexpr Alpha(Alpha&& other) noexcept = default;
+    constexpr Alpha& operator=(const Alpha& other) = default;
+    constexpr Alpha& operator=(Alpha&& other) noexcept = default;
 
     /** Returns a pointer to the internal representation of components.
      *  The alpha component is the last component in the array and
@@ -129,6 +129,7 @@ public:
      */
     template <typename Pos>
     constexpr Alpha<T, Color> lerp(const Alpha<T, Color>& end, Pos pos) const {
+        assert((pos >= 0.0 && pos <= 1.0) && "pos must be constrained to 0..1");
         return Alpha<T, Color>(_color.lerp(end.color(), pos),
                 _alpha.lerp(end._alpha.value, pos));
     }
@@ -136,6 +137,7 @@ public:
     template <typename Pos>
     constexpr Alpha<T, Color> lerp_flat(
             const Alpha<T, Color>& end, Pos pos) const {
+        assert((pos >= 0.0 && pos <= 1.0) && "pos must be constrained to 0..1");
         return Alpha<T, Color>(_color.lerp_flat(end.color(), pos),
                 _alpha.lerp_flat(end._alpha.value, pos));
     }
@@ -224,12 +226,13 @@ private:
  *  Functionally equivalent to Alpha::Alpha(Color<T> color, T alpha).
  */
 template <typename T, template <typename> class Color>
-Alpha<T, Color> with_alpha(Color<T> color, T alpha) {
+inline Alpha<T, Color> with_alpha(Color<T> color, T alpha) {
     return Alpha<T, Color>(color, alpha);
 }
 
 template <typename T, template <typename> class Color>
-std::ostream& operator<<(std::ostream& stream, const Alpha<T, Color>& color) {
+inline std::ostream& operator<<(
+        std::ostream& stream, const Alpha<T, Color>& color) {
     stream << "Alpha(" << color.color() << ", " << +color.alpha() << ")";
     return stream;
 }
@@ -242,7 +245,7 @@ std::ostream& operator<<(std::ostream& stream, const Alpha<T, Color>& color) {
 template <typename T,
         template <typename> class Color,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Alpha<T, Color> alpha_blend(
+inline Alpha<T, Color> alpha_blend(
         const Alpha<T, Color>& src, const Alpha<T, Color>& dest) {
     auto out = Alpha<T, Color>();
 
@@ -264,7 +267,7 @@ template <typename T,
         template <typename> class Color,
         typename Pos = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Alpha<T, Color> alpha_blend(
+inline Alpha<T, Color> alpha_blend(
         const Alpha<T, Color>& src, const Alpha<T, Color>& dest) {
     Pos scaled_src_alpha = src.alpha_channel().template to_float_channel<Pos>();
     Pos scaled_dest_alpha =
@@ -295,7 +298,8 @@ Alpha<T, Color> alpha_blend(
  *  calling `lerp` on \a src with a position of `1-src.alpha()`.
  */
 template <typename T, template <typename> class Color>
-Alpha<T, Color> alpha_blend(const Alpha<T, Color>& src, const Color<T>& dest) {
+inline Alpha<T, Color> alpha_blend(
+        const Alpha<T, Color>& src, const Color<T>& dest) {
     return Alpha<T, Color>(src.color().lerp(dest, 1.0 - src.alpha()),
             BoundedChannel<T>::max_value());
 }

@@ -34,6 +34,11 @@ public:
 
     ~Degrees() = default;
 
+    constexpr Degrees(const Degrees& other) = default;
+    constexpr Degrees(Degrees&& other) noexcept = default;
+    constexpr Degrees& operator=(const Degrees& other) = default;
+    constexpr Degrees& operator=(Degrees&& other) noexcept = default;
+
     /** Return a value in `[0,1)` representing
      *  a floating point channel value.
      *
@@ -85,7 +90,6 @@ public:
         return Degrees<T>(value * period_length());
     }
 
-
     T value;
 };
 
@@ -100,6 +104,11 @@ public:
     explicit constexpr Radians(T angle) : value(angle) {}
 
     ~Radians() = default;
+
+    constexpr Radians(const Radians& other) = default;
+    constexpr Radians(Radians&& other) noexcept = default;
+    constexpr Radians& operator=(const Radians& other) = default;
+    constexpr Radians& operator=(Radians&& other) noexcept = default;
 
     /** Return a value in `[0,1)` representing
      *  a floating point channel value.
@@ -189,7 +198,7 @@ inline constexpr bool operator!=(Radians<T> lhs, Radians<T> rhs) {
     return !(lhs == rhs);
 }
 template <typename T>
-constexpr inline Radians<T> operator+(Radians<T> lhs, Radians<T> rhs) {
+inline constexpr Radians<T> operator+(Radians<T> lhs, Radians<T> rhs) {
     return Radians<T>(lhs.value + rhs.value).normalize();
 }
 template <typename T>

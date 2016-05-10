@@ -29,10 +29,12 @@ public:
 
     ~CylindricalColor() = default;
 
-    CylindricalColor(const CylindricalColor& other) = default;
-    CylindricalColor(CylindricalColor&& other) noexcept = default;
-    CylindricalColor& operator =(const CylindricalColor& other) = default;
-    CylindricalColor& operator =(CylindricalColor&& other) noexcept = default;
+    constexpr CylindricalColor(const CylindricalColor& other) = default;
+    constexpr CylindricalColor(CylindricalColor&& other) noexcept = default;
+    constexpr CylindricalColor& operator=(
+            const CylindricalColor& other) = default;
+    constexpr CylindricalColor& operator=(
+            CylindricalColor&& other) noexcept = default;
 
     /// Return a pointer to the internal array of components.
     constexpr T* data() { return reinterpret_cast<T*>(this); }

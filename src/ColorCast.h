@@ -4,8 +4,8 @@
 #ifndef COLOR_COLORCAST_H_
 #define COLOR_COLORCAST_H_
 
-#include <utility>
 #include <tuple>
+#include <utility>
 
 namespace color {
 
@@ -14,7 +14,7 @@ namespace details {
 template <typename To>
 struct tuple_transform_functor {
     template <typename From, template <typename> class ChanType>
-    constexpr To operator()(ChanType<From> chan) {
+    constexpr To operator()(ChanType<From> chan) const {
         constexpr auto scaling_factor =
                 (ChanType<To>::end_point() - ChanType<To>::min_value()) /
                 (ChanType<From>::end_point() - ChanType<From>::min_value());

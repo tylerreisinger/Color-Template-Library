@@ -19,7 +19,7 @@ namespace color {
  */
 template <typename T,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Hsv<T> to_hsv(const Rgb<T>& from) {
+inline Hsv<T> to_hsv(const Rgb<T>& from) {
     // Used to avoid division by zero by making the number
     // very slightly greater than zero.
     const auto EPSILON = T(1e-10);
@@ -42,20 +42,20 @@ Hsv<T> to_hsv(const Rgb<T>& from) {
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Hsv<T> to_hsv(const Rgb<T>& from) {
+inline Hsv<T> to_hsv(const Rgb<T>& from) {
     return color_cast<T>(to_hsv(color_cast<FloatType>(from)));
 }
 
 template <typename T,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Hsva<T> to_hsv(const Rgba<T>& from) {
+inline Hsva<T> to_hsv(const Rgba<T>& from) {
     return Hsva<T>(to_hsv(from.color()), from.alpha());
 }
 
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Hsva<T> to_hsv(const Rgba<T>& from) {
+inline Hsva<T> to_hsv(const Rgba<T>& from) {
     return Hsva<T>(to_hsv<T, FloatType>(from.color()), from.alpha());
 }
 }

@@ -10,9 +10,9 @@
 
 namespace color {
 
-template<typename T,
-    typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Hsl<T> to_hsl(const Rgb<T>& from) {
+template <typename T,
+        typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+inline Hsl<T> to_hsl(const Rgb<T>& from) {
     const auto EPSILON = T(1e-10);
     auto c1 = from.red();
     auto c2 = from.green();
@@ -34,20 +34,20 @@ Hsl<T> to_hsl(const Rgb<T>& from) {
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Hsl<T> to_hsl(const Rgb<T>& from) {
+inline Hsl<T> to_hsl(const Rgb<T>& from) {
     return color_cast<T>(to_hsl(color_cast<FloatType>(from)));
 }
 
 template <typename T,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Hsla<T> to_hsl(const Rgba<T>& from) {
+inline Hsla<T> to_hsl(const Rgba<T>& from) {
     return Hsla<T>(to_hsl(from.color()), from.alpha());
 }
 
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Hsla<T> to_hsl(const Rgba<T>& from) {
+inline Hsla<T> to_hsl(const Rgba<T>& from) {
     return Hsla<T>(to_hsl<T, FloatType>(from.color()), from.alpha());
 }
 }

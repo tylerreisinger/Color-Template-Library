@@ -13,7 +13,7 @@ namespace color {
 
 template <typename T,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Hsi<T> to_hsi(const Rgb<T>& from) {
+inline Hsi<T> to_hsi(const Rgb<T>& from) {
     const T intensity =
             T(1.0 / 3.0) * (from.red() + from.green() + from.blue());
 
@@ -41,20 +41,20 @@ Hsi<T> to_hsi(const Rgb<T>& from) {
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Hsi<T> to_hsi(const Rgb<T>& from) {
+inline Hsi<T> to_hsi(const Rgb<T>& from) {
     return color_cast<T>(to_hsl(color_cast<FloatType>(from)));
 }
 
 template <typename T,
         typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
-Hsia<T> to_hsi(const Rgba<T>& from) {
+inline Hsia<T> to_hsi(const Rgba<T>& from) {
     return Hsia<T>(to_hsi(from.color()), from.alpha());
 }
 
 template <typename T,
         typename FloatType = float,
         typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-Hsia<T> to_hsi(const Rgba<T>& from) {
+inline Hsia<T> to_hsi(const Rgba<T>& from) {
     return Hsia<T>(to_hsi<T, FloatType>(from.color()), from.alpha());
 }
 }

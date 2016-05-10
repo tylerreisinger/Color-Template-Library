@@ -34,10 +34,10 @@ public:
     using ConstChannelTupleType = typename Base::ConstChannelTupleType;
 
     ~Hsi() = default;
-    Hsi(const Hsi& other) = default;
-    Hsi(Hsi&& other) noexcept = default;
-    Hsi& operator=(const Hsi& other) = default;
-    Hsi& operator=(Hsi&& other) noexcept = default;
+    constexpr Hsi(const Hsi& other) = default;
+    constexpr Hsi(Hsi&& other) noexcept = default;
+    constexpr Hsi& operator=(const Hsi& other) = default;
+    constexpr Hsi& operator=(Hsi&& other) noexcept = default;
 
     constexpr Hsi() : Base() {}
     constexpr Hsi(T hue, T saturation, T intensity)
