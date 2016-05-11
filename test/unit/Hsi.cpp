@@ -4,9 +4,9 @@
 #include <chrono>
 
 #include "Hsi.h"
+#include "Rgb.h"
 #include "ConversionRef.h"
 #include "Assertions.h"
-#include "ToRgb.h"
 
 using namespace color;
 

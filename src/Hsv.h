@@ -7,11 +7,14 @@
 
 #include "CylindricalColor.h"
 
+#include <cassert>
 #include <ostream>
 #include <tuple>
 #include <type_traits>
 
+#include "ConvertUtil.h"
 #include "Channel.h"
+#include "ColorCast.h"
 
 namespace color {
 
@@ -133,6 +136,129 @@ constexpr inline void swap(Hsv<T>& lhs, Hsv<T>& rhs) {
     swap(lhs._hue, rhs._hue);
     swap(lhs._saturation, rhs._saturation);
     swap(lhs._c3, rhs._c3);
+}
+
+// Conversion functions
+
+template <typename T>
+class Rgb;
+template <typename T>
+using Rgba = Alpha<T, Rgb>;
+
+template <typename T,
+        typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+inline Hsv<T> to_hsv(const Rgb<T>& from) {
+    // Used to avoid division by zero by making the number
+    // very slightly greater than zero.
+    const auto EPSILON = T(1e-10);
+    auto c1 = from.red();
+    auto c2 = from.green();
+    auto c3 = from.blue();
+    T min_channel;
+
+    T scaling_factor = details::order_channels_for_hue(c1, c2, c3, min_channel);
+
+    auto max_channel = c1;
+    auto chroma = details::chroma(max_channel, min_channel);
+    auto hue = details::hue(chroma, scaling_factor, c2, c3);
+    auto value = c1;
+    auto saturation = chroma / (value + EPSILON);
+    return Hsv<T>(hue, saturation, value);
+}
+
+// Specialization for integer-typed channels.
+template <typename T,
+        typename FloatType = float,
+        typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+inline Hsv<T> to_hsv(const Rgb<T>& from) {
+    return color_cast<T>(to_hsv(color_cast<FloatType>(from)));
+}
+
+template <typename T,
+        typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+inline Hsva<T> to_hsv(const Rgba<T>& from) {
+    return Hsva<T>(to_hsv(from.color()), from.alpha());
+}
+
+template <typename T,
+        typename FloatType = float,
+        typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+inline Hsva<T> to_hsv(const Rgba<T>& from) {
+    return Hsva<T>(to_hsv<T, FloatType>(from.color()), from.alpha());
+}
+
+template <typename T,
+        typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+inline Rgb<T> to_rgb(const Hsv<T>& from) {
+    Rgb<T> out;
+
+    T hue_frac;
+    auto hue_seg = details::decompose_hue(from.hue(), hue_frac);
+
+    auto color_min_bound = from.value() * (1.0 - from.saturation());
+
+    switch(hue_seg) {
+    case -1:
+    case 0: {
+        auto g = from.value() * (1.0 - from.saturation() * (1.0 - hue_frac));
+        out = Rgb<T>(from.value(), g, color_min_bound);
+        break;
+    }
+    case 1: {
+        auto r = from.value() * (1.0 - from.saturation() * hue_frac);
+        out = Rgb<T>(r, from.value(), color_min_bound);
+        break;
+    }
+    case 2: {
+        auto b = from.value() * (1.0 - from.saturation() * (1.0 - hue_frac));
+        out = Rgb<T>(color_min_bound, from.value(), b);
+        break;
+    }
+    case 3: {
+        auto g = from.value() * (1.0 - from.saturation() * hue_frac);
+        out = Rgb<T>(color_min_bound, g, from.value());
+        break;
+    }
+    case 4: {
+        auto r = from.value() * (1.0 - from.saturation() * (1.0 - hue_frac));
+        out = Rgb<T>(r, color_min_bound, from.value());
+        break;
+    }
+    case 5:
+    case 6: {
+        auto b = from.value() * (1.0 - from.saturation() * hue_frac);
+        out = Rgb<T>(from.value(), color_min_bound, b);
+        break;
+    }
+    default: {
+        assert(false &&
+                "In unreachable hue segment -- input color likely invalid");
+        out = Rgb<T>::broadcast(0.0);
+        break;
+    }
+    }
+
+    return out;
+}
+
+template <typename T,
+        typename FloatType = float,
+        typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+inline Rgb<T> to_rgb(const Hsv<T>& from) {
+    return color_cast<T>(to_rgb(color_cast<FloatType>(from)));
+}
+
+template <typename T,
+        typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+inline Rgba<T> to_rgb(const Hsva<T>& from) {
+    return Rgba<T>(to_rgb(from.color()), from.alpha());
+}
+
+template <typename T,
+        typename FloatType = float,
+        typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+inline Rgba<T> to_rgb(const Hsva<T>& from) {
+    return Rgba<T>(to_rgb<T, FloatType>(from.color()), from.alpha());
 }
 }
 

@@ -6,12 +6,10 @@
 #include "Alpha.h"
 #include "ColorCast.h"
 #include "ConversionRef.h"
+#include "Hsi.h"
 #include "Hsl.h"
 #include "Hsv.h"
-#include "ToHsi.h"
-#include "ToHsl.h"
-#include "ToHsv.h"
-#include "ToRgb.h"
+#include "Rgb.h"
 
 using namespace color;
 

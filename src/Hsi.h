@@ -3,8 +3,10 @@
 
 #include "CylindricalColor.h"
 #include "ConvertUtil.h"
+#include "ColorCast.h"
 
 #include <array>
+#include <cassert>
 #include <tuple>
 
 namespace color {
@@ -135,6 +137,115 @@ constexpr inline void swap(Hsi<T>& lhs, Hsi<T>& rhs) {
     swap(lhs._hue, rhs._hue);
     swap(lhs._saturation, rhs._saturation);
     swap(lhs._c3, rhs._c3);
+}
+
+// Conversion Functions
+
+template <typename T>
+class Rgb;
+template <typename T>
+using Rgba = Alpha<T, Rgb>;
+
+template <typename T,
+        typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+inline Hsi<T> to_hsi(const Rgb<T>& from) {
+    const T intensity =
+            T(1.0 / 3.0) * (from.red() + from.green() + from.blue());
+
+    T alpha, beta;
+    std::tie(alpha, beta) = chromacity_coordinates(from);
+
+    T hue = std::atan2(beta, alpha) / Radians<T>::period_length();
+
+    if(hue < 0.0) {
+        hue = 1.0 + hue;
+    }
+
+    const T min = std::min({from.red(), from.green(), from.blue()});
+
+    T saturation;
+    if(intensity != 0.0) {
+        saturation = T(1.0) - min / intensity;
+    } else {
+        saturation = T(0.0);
+    }
+
+    return Hsi<T>(hue, saturation, intensity);
+}
+
+template <typename T,
+        typename FloatType = float,
+        typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+inline Hsi<T> to_hsi(const Rgb<T>& from) {
+    return color_cast<T>(to_hsl(color_cast<FloatType>(from)));
+}
+
+template <typename T,
+        typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+inline Hsia<T> to_hsi(const Rgba<T>& from) {
+    return Hsia<T>(to_hsi(from.color()), from.alpha());
+}
+
+template <typename T,
+        typename FloatType = float,
+        typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+inline Hsia<T> to_hsi(const Rgba<T>& from) {
+    return Hsia<T>(to_hsi<T, FloatType>(from.color()), from.alpha());
+}
+
+enum class HsiOutOfGamutMode { Clip, Preserve };
+
+namespace details {
+template <typename T>
+inline void preserve_oog_mode(const Hsi<T>& from, T& c1, T& c2, T& c3) {}
+template <typename T>
+inline void clip_oog_mode(const Hsi<T>& from, T& c1, T& c2, T& c3) {
+    c1 = std::min(c1, T(1.0));
+    c2 = std::min(c2, T(1.0));
+    c3 = std::min(c3, T(1.0));
+}
+}
+
+template <typename T,
+        typename FnType,
+        typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+inline Rgb<T> to_rgb(const Hsi<T>& from, const FnType& gamut_fn) {
+    T hue_angle = from.hue() * Radians<T>::period_length();
+    hue_angle = std::fmod(hue_angle, T(2.0 * PI<T> / 3.0));
+
+    T c1 = from.intensity() * (T(1.0) - from.saturation());
+    T c2 = from.intensity() *
+            (T(1.0) +
+                    (from.saturation() * std::cos(hue_angle)) /
+                            (std::cos(PI<T> / 3.0 - hue_angle)));
+    T c3 = T(3.0) * from.intensity() - (c1 + c2);
+
+    gamut_fn(from, c1, c2, c3);
+
+    if(from.hue() < 1.0 / 3.0) {
+        return Rgb<T>(c2, c3, c1);
+    } else if(from.hue() < 2.0 / 3.0) {
+        return Rgb<T>(c1, c2, c3);
+    } else {
+        return Rgb<T>(c3, c1, c2);
+    }
+}
+
+template <typename T>
+inline Rgb<T> to_rgb(const Hsi<T>& from,
+        HsiOutOfGamutMode gamut_fix_mode = HsiOutOfGamutMode::Clip) {
+    switch(gamut_fix_mode) {
+    case HsiOutOfGamutMode::Clip: {
+        return to_rgb(from, details::clip_oog_mode<T>);
+    }
+    case HsiOutOfGamutMode::Preserve: {
+        return to_rgb(from, details::preserve_oog_mode<T>);
+    }
+    default: {
+        assert(false && "Invalid HsiOutOfGamutMode provided.");
+        return Rgb<T>(0, 0, 0);
+    }
+    }
 }
 }
 

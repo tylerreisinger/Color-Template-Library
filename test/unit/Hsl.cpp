@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include "Rgb.h"
 #include "Hsl.h"
 #include "Color.h"
 #include "ConversionRef.h"
